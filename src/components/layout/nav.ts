@@ -19,6 +19,8 @@ export const ICONS = {
   projects:
     "M3 21h18M5 21V8l7-5 7 5v13M9 21v-6h6v6M9 10h.01M15 10h.01",
   kit: "M12 2 2 7v10l10 5 10-5V7l-10-5Zm-7 8.2 5 2.5v6.3l-5-2.5V10.2Zm12-1-5 2.5v6.5l5-2.5V9.2Zm-1.2-2.1L12 9.3 8.2 7.1 12 5l3.8 2.1ZM4 17.1l5 2.5v-6.2l-5-2.5v6.2Z",
+  materials:
+    "M21 8l-9-5-9 5v8l9 5 9-5V8Zm-9 3V4.5M3.4 8.2l8.6 4.8 8.6-4.8M12 13v6.5",
 } as const;
 
 /** Single source of truth for sidebar navigation. Future modules add their items here. */
@@ -29,6 +31,10 @@ export const NAV_GROUPS: NavGroup[] = [
       { label: "Dashboard", href: "/dashboard", icon: ICONS.dashboard, match: ["/"] },
       { label: "Projects", href: "/projects", icon: ICONS.projects },
     ],
+  },
+  {
+    label: "Catalog",
+    items: [{ label: "Materials", href: "/materials", icon: ICONS.materials }],
   },
   {
     label: "Design System",

@@ -3,6 +3,7 @@ import "@/features/projects/services/projects.mock";
 import "@/features/schedule/services/schedule.mock";
 import "@/features/work-packages/services/work-packages.mock";
 import "@/features/boq/services/boq.mock";
+import "@/features/materials/services/materials.mock";
 import "@/features/procurement/services/procurement.mock";
 import "@/features/labor/services/labor.mock";
 import "@/features/machinery/services/machinery.mock";

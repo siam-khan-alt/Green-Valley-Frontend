@@ -79,7 +79,7 @@ Legend: ✅ done · 🔨 in progress · ⬜ pending
 | 7 | **WorkPackages** | ✅ |
 | 8 | **BOQ** | ✅ |
 | 9 | **Procurement** | ✅ |
-| 10 | **Materials** | ⬜ |
+| 10 | **Materials** | ✅ |
 | 11 | **Suppliers** | ⬜ |
 | 12 | **Contractors** | ⬜ |
 | 13 | **Labor (Muster Roll)** | ✅ |

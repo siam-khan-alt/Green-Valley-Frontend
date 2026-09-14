@@ -9,6 +9,7 @@ const SEGMENT_LABELS: Record<string, string> = {
   "ui-kit": "UI Kit",
   login: "Login",
   projects: "Projects",
+  materials: "Materials",
   schedule: "Schedule",
   "work-packages": "Work Packages",
   boq: "BOQ",
