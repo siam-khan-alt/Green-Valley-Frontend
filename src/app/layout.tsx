@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { ToastProvider } from "@/components/ui";
 import { AuthProvider } from "@/features/auth";
+import { QueryProvider } from "@/services";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -28,7 +29,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     >
       <body className="min-h-full flex flex-col">
         <AuthProvider>
-          <ToastProvider>{children}</ToastProvider>
+          <ToastProvider>
+            <QueryProvider>{children}</QueryProvider>
+          </ToastProvider>
         </AuthProvider>
       </body>
     </html>

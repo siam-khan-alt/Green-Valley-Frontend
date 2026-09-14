@@ -73,7 +73,7 @@ Legend: ✅ done · 🔨 in progress · ⬜ pending
 | 1 | **UI Kit (Design System)** | ✅ |
 | 2 | **Auth & Session** | ✅ |
 | 3 | **App Shell / Layout** | ✅ |
-| 4 | **API Core** | ⬜ |
+| 4 | **API Core** | ✅ |
 | 5 | **Projects** | ⬜ |
 | 6 | **Schedule** | ⬜ |
 | 7 | **WorkPackages** | ⬜ |

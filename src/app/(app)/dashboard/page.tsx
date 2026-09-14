@@ -1,5 +1,6 @@
 "use client";
 
+import { useQuery } from "@tanstack/react-query";
 import {
   Badge,
   Card,
@@ -11,6 +12,13 @@ import {
   ROLE_CAPABILITIES,
   useAuth,
 } from "@/features/auth";
+import { api } from "@/services";
+
+interface ApiMeta {
+  service: string;
+  mock: boolean;
+  version: string;
+}
 
 export default function DashboardPage() {
   return <Dashboard />;
@@ -18,6 +26,10 @@ export default function DashboardPage() {
 
 function Dashboard() {
   const { user } = useAuth();
+  const metaQuery = useQuery({
+    queryKey: ["api-meta"],
+    queryFn: () => api.get<ApiMeta>("/meta"),
+  });
 
   if (!user) return null;
 
@@ -59,6 +71,38 @@ function Dashboard() {
                 </li>
               ))}
             </ul>
+          </CardBody>
+        </Card>
+
+        <Card>
+          <CardHeader title="API Core layer" />
+          <CardBody>
+            {metaQuery.isPending ? (
+              <p className="text-sm text-text-muted">Verifying mock adapter…</p>
+            ) : metaQuery.isError ? (
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <Badge variant="danger" dot>
+                    Adapter error
+                  </Badge>
+                  <p className="mt-1 text-xs text-text-muted">
+                    {metaQuery.error.message}
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <Badge variant="success" dot>
+                    Mock adapter online
+                  </Badge>
+                  <p className="mt-1 text-xs text-text-muted">
+                    GET /api/v1/meta · {metaQuery.data.service} v
+                    {metaQuery.data.version}
+                  </p>
+                </div>
+              </div>
+            )}
           </CardBody>
         </Card>
       </div>
