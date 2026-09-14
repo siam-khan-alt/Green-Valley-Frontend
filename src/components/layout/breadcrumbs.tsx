@@ -13,6 +13,8 @@ const SEGMENT_LABELS: Record<string, string> = {
   "work-packages": "Work Packages",
   boq: "BOQ",
   procurement: "Procurement",
+  labor: "Labor",
+  machinery: "Machinery",
   billing: "Billing",
   reports: "Reports",
 };
