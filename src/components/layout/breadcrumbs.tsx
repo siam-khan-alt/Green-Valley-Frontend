@@ -11,6 +11,7 @@ const SEGMENT_LABELS: Record<string, string> = {
   projects: "Projects",
   schedule: "Schedule",
   "work-packages": "Work Packages",
+  boq: "BOQ",
   procurement: "Procurement",
   billing: "Billing",
   reports: "Reports",

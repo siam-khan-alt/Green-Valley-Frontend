@@ -77,7 +77,7 @@ Legend: ✅ done · 🔨 in progress · ⬜ pending
 | 5 | **Projects** | ✅ |
 | 6 | **Schedule** | ✅ |
 | 7 | **WorkPackages** | ✅ |
-| 8 | **BOQ** | ⬜ |
+| 8 | **BOQ** | ✅ |
 | 9 | **Procurement** | ⬜ |
 | 10 | **Materials** | ⬜ |
 | 11 | **Suppliers** | ⬜ |
