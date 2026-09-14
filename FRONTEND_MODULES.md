@@ -80,7 +80,7 @@ Legend: ✅ done · 🔨 in progress · ⬜ pending
 | 8 | **BOQ** | ✅ |
 | 9 | **Procurement** | ✅ |
 | 10 | **Materials** | ✅ |
-| 11 | **Suppliers** | ⬜ |
+| 11 | **Suppliers** | ✅ |
 | 12 | **Contractors** | ⬜ |
 | 13 | **Labor (Muster Roll)** | ✅ |
 | 14 | **Machinery** | ✅ |
