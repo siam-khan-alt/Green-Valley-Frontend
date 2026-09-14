@@ -20,4 +20,4 @@ git push
 
 Tags (ALL CAPS in brackets): `[FEATURE]` new feature/component · `[UPDATED]` enhance existing code/UI · `[FIXED]` bug fix · `[SETUP]` packages/config · `[DOCS]` documentation.
 
-Full module map + rules: `../Docs/Frontend-modules.md` (read it before coding).
+Full module map + rules: `FRONTEND_MODULES.md` (repo root — read it before coding).
