@@ -16,6 +16,12 @@ const SEGMENT_LABELS: Record<string, string> = {
   reports: "Reports",
 };
 
+const ID_SEGMENT = /^(p|id)[a-z0-9_]*$|[0-9]+$/i;
+
+function segmentLabel(segment: string): string {
+  return SEGMENT_LABELS[segment] ?? (ID_SEGMENT.test(segment) ? "Details" : segment);
+}
+
 export function Breadcrumbs() {
   const pathname = usePathname();
   const segments = pathname.split("/").filter(Boolean);
@@ -29,7 +35,7 @@ export function Breadcrumbs() {
         Home
       </Link>
       {segments.map((segment, index) => {
-        const label = SEGMENT_LABELS[segment] ?? segment;
+        const label = segmentLabel(segment);
         const isLast = index === segments.length - 1;
         const href = `/${segments.slice(0, index + 1).join("/")}`;
         return (

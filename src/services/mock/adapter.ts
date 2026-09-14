@@ -19,12 +19,12 @@ const registry: MockEntry[] = [];
 
 function compile(pattern: string) {
   const paramKeys: string[] = [];
-  const escaped = pattern.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  const source = escaped.replace(/\{([^/{}]+)\}/g, (_, key: string) => {
+  const source = pattern.replace(/\{([^{}/]+)\}/g, (_, key: string) => {
     paramKeys.push(key);
     return "([^/]+)";
   });
-  return { pattern: new RegExp(`^${source}$`), paramKeys };
+  const escaped = source.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  return { pattern: new RegExp(`^${escaped}$`), paramKeys };
 }
 
 export function registerMock(

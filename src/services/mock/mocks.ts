@@ -1,4 +1,5 @@
 import { registerMock } from "./adapter";
+import "@/features/projects/services/projects.mock";
 
 registerMock("get", "/meta", async () => ({
   status: 200,

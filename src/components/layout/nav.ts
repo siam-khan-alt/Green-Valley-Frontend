@@ -16,6 +16,8 @@ export type NavGroup = {
 
 export const ICONS = {
   dashboard: "M3 13h8V3H3v10Zm0 8h8v-6H3v6Zm10 0h8V11h-8v10Zm0-18v6h8V3h-8Z",
+  projects:
+    "M3 21h18M5 21V8l7-5 7 5v13M9 21v-6h6v6M9 10h.01M15 10h.01",
   kit: "M12 2 2 7v10l10 5 10-5V7l-10-5Zm-7 8.2 5 2.5v6.3l-5-2.5V10.2Zm12-1-5 2.5v6.5l5-2.5V9.2Zm-1.2-2.1L12 9.3 8.2 7.1 12 5l3.8 2.1ZM4 17.1l5 2.5v-6.2l-5-2.5v6.2Z",
 } as const;
 
@@ -23,7 +25,10 @@ export const ICONS = {
 export const NAV_GROUPS: NavGroup[] = [
   {
     label: "Overview",
-    items: [{ label: "Dashboard", href: "/dashboard", icon: ICONS.dashboard, match: ["/"] }],
+    items: [
+      { label: "Dashboard", href: "/dashboard", icon: ICONS.dashboard, match: ["/"] },
+      { label: "Projects", href: "/projects", icon: ICONS.projects },
+    ],
   },
   {
     label: "Design System",
