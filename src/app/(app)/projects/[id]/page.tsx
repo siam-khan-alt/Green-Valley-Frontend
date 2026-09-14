@@ -121,8 +121,11 @@ export default function ProjectDetailPage() {
           </div>
           <p className="mt-1 text-sm text-text-muted">{project.description}</p>
         </div>
-        {canWrite && (
+        {canWrite ? (
           <div className="flex items-center gap-2">
+            <Link href={`/projects/${id}/schedule`}>
+              <Button variant="outline">Schedule</Button>
+            </Link>
             <Button variant="secondary" onClick={() => setEditOpen(true)}>
               Edit
             </Button>
@@ -134,6 +137,10 @@ export default function ProjectDetailPage() {
               Delete
             </Button>
           </div>
+        ) : (
+          <Link href={`/projects/${id}/schedule`}>
+            <Button variant="outline">Schedule</Button>
+          </Link>
         )}
       </div>
 
