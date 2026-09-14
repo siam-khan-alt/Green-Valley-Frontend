@@ -1,26 +1,116 @@
 @import "tailwindcss";
 
+/*
+ * Green Valley Developers — Design System tokens (see Docs/UI.md)
+ * Semantic CSS variables: light (default) + .dark overrides.
+ * Mapped into Tailwind theme below so utilities like `bg-background`,
+ * `text-text`, `border-border`, `bg-primary`, `bg-danger` work everywhere.
+ */
+
+@custom-variant dark (&:where(.dark, .dark *));
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  color-scheme: light;
+
+  /* surfaces & neutrals */
+  --background: #f7f9f7;
+  --surface: #ffffff;
+  --surface-muted: #ecf1ec;
+  --border: #dce4dc;
+  --text: #1a211a;
+  --text-muted: #5d6b5e;
+
+  /* brand (Deep Forest Green) + states */
+  --primary: #166534;
+  --primary-hover: #134e25;
+  --primary-soft: #dce9dc;
+  --primary-foreground: #ffffff;
+
+  /* semantic status colors */
+  --success: #16a34a;
+  --warning: #b45309;
+  --danger: #dc2626;
+  --info: #2563eb;
+
+  /* radius scale */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+}
+
+.dark {
+  color-scheme: dark;
+
+  --background: #0d140f;
+  --surface: #121a14;
+  --surface-muted: #18221b;
+  --border: #27332b;
+  --text: #e9efea;
+  --text-muted: #94a196;
+
+  --primary: #38a963;
+  --primary-hover: #4cb574;
+  --primary-soft: #1b3a27;
+  --primary-foreground: #0b130d;
+
+  --success: #4ade80;
+  --warning: #fbbf24;
+  --danger: #f87171;
+  --info: #60a5fa;
 }
 
 @theme inline {
   --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  --color-surface: var(--surface);
+  --color-surface-muted: var(--surface-muted);
+  --color-border: var(--border);
+  --color-text: var(--text);
+  --color-text-muted: var(--text-muted);
+  --color-foreground: var(--text);
+
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-soft: var(--primary-soft);
+  --color-primary-foreground: var(--primary-foreground);
+
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-danger: var(--danger);
+  --color-info: var(--info);
+
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-}
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius-md);
+  --radius-lg: var(--radius-lg);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--background);
+  color: var(--text);
+  font-family: var(--font-geist-sans), ui-sans-serif, system-ui, -apple-system,
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* base focus ring — one consistent, semantic focus style across the app */
+:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+/* thin, theme-aware scrollbar for data-dense surfaces */
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+*::-webkit-scrollbar-thumb {
+  background-color: var(--border);
+  border-radius: var(--radius-sm);
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+*::-webkit-scrollbar-track {
+  background: transparent;
 }
