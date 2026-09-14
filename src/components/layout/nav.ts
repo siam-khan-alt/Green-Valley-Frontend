@@ -1,0 +1,32 @@
+export const ORG_NAME = "Green Valley";
+export const ORG_SUBTITLE = "Developers";
+
+export type NavItem = {
+  label: string;
+  href: string;
+  icon?: string;
+  /** extra paths that should highlight this item (e.g. "/" for dashboard) */
+  match?: string[];
+};
+
+export type NavGroup = {
+  label: string;
+  items: NavItem[];
+};
+
+export const ICONS = {
+  dashboard: "M3 13h8V3H3v10Zm0 8h8v-6H3v6Zm10 0h8V11h-8v10Zm0-18v6h8V3h-8Z",
+  kit: "M12 2 2 7v10l10 5 10-5V7l-10-5Zm-7 8.2 5 2.5v6.3l-5-2.5V10.2Zm12-1-5 2.5v6.5l5-2.5V9.2Zm-1.2-2.1L12 9.3 8.2 7.1 12 5l3.8 2.1ZM4 17.1l5 2.5v-6.2l-5-2.5v6.2Z",
+} as const;
+
+/** Single source of truth for sidebar navigation. Future modules add their items here. */
+export const NAV_GROUPS: NavGroup[] = [
+  {
+    label: "Overview",
+    items: [{ label: "Dashboard", href: "/dashboard", icon: ICONS.dashboard, match: ["/"] }],
+  },
+  {
+    label: "Design System",
+    items: [{ label: "UI Kit", href: "/ui-kit", icon: ICONS.kit }],
+  },
+];

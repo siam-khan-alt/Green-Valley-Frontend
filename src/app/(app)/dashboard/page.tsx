@@ -1,9 +1,7 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import {
   Badge,
-  Button,
   Card,
   CardBody,
   CardHeader,
@@ -11,41 +9,27 @@ import {
 import {
   ROLES,
   ROLE_CAPABILITIES,
-  RequireAuth,
   useAuth,
 } from "@/features/auth";
 
 export default function DashboardPage() {
-  return (
-    <RequireAuth>
-      <Dashboard />
-    </RequireAuth>
-  );
+  return <Dashboard />;
 }
 
 function Dashboard() {
-  const { user, logout } = useAuth();
-  const router = useRouter();
-
-  async function handleLogout() {
-    await logout();
-    router.replace("/login");
-  }
+  const { user } = useAuth();
 
   if (!user) return null;
 
   return (
-    <main className="mx-auto w-full max-w-4xl flex-1 px-4 py-10">
+    <main className="mx-auto w-full max-w-4xl">
       <div className="flex items-center justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold text-text">Dashboard</h1>
           <p className="mt-1 text-sm text-text-muted">
-            Module 2 — session + role-based rendering (mock auth).
+            Session & role-based rendering — pick an account to explore.
           </p>
         </div>
-        <Button variant="secondary" onClick={handleLogout}>
-          Logout
-        </Button>
       </div>
 
       <div className="mt-6 grid gap-3 sm:grid-cols-2">
