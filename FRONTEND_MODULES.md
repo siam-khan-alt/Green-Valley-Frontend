@@ -81,7 +81,7 @@ Legend: ✅ done · 🔨 in progress · ⬜ pending
 | 9 | **Procurement** | ✅ |
 | 10 | **Materials** | ✅ |
 | 11 | **Suppliers** | ✅ |
-| 12 | **Contractors** | ⬜ |
+| 12 | **Contractors** | ✅ |
 | 13 | **Labor (Muster Roll)** | ✅ |
 | 14 | **Machinery** | ✅ |
 | 15 | **Operations (DPR)** | ⬜ |
