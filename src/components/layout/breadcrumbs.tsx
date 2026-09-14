@@ -16,7 +16,7 @@ const SEGMENT_LABELS: Record<string, string> = {
   reports: "Reports",
 };
 
-const ID_SEGMENT = /^(p|id)[a-z0-9_]*$|[0-9]+$/i;
+const ID_SEGMENT = /^[a-z]+_[a-z0-9_]+$/i;
 
 function segmentLabel(segment: string): string {
   return SEGMENT_LABELS[segment] ?? (ID_SEGMENT.test(segment) ? "Details" : segment);

@@ -121,27 +121,28 @@ export default function ProjectDetailPage() {
           </div>
           <p className="mt-1 text-sm text-text-muted">{project.description}</p>
         </div>
-        {canWrite ? (
-          <div className="flex items-center gap-2">
-            <Link href={`/projects/${id}/schedule`}>
-              <Button variant="outline">Schedule</Button>
-            </Link>
-            <Button variant="secondary" onClick={() => setEditOpen(true)}>
-              Edit
-            </Button>
-            <Button
-              variant="danger"
-              onClick={() => setDeleteOpen(true)}
-              loading={deleteProject.isPending}
-            >
-              Delete
-            </Button>
-          </div>
-        ) : (
+<div className="flex flex-wrap items-center gap-2">
           <Link href={`/projects/${id}/schedule`}>
             <Button variant="outline">Schedule</Button>
           </Link>
-        )}
+          <Link href={`/projects/${id}/work-packages`}>
+            <Button variant="outline">Work packages</Button>
+          </Link>
+          {canWrite && (
+            <>
+              <Button variant="secondary" onClick={() => setEditOpen(true)}>
+                Edit
+              </Button>
+              <Button
+                variant="danger"
+                onClick={() => setDeleteOpen(true)}
+                loading={deleteProject.isPending}
+              >
+                Delete
+              </Button>
+            </>
+          )}
+        </div>
       </div>
 
       <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">

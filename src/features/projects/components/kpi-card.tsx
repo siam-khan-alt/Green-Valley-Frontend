@@ -8,6 +8,7 @@ const valueTones = {
   success: "text-success",
   warning: "text-warning",
   danger: "text-danger",
+  info: "text-info",
   primary: "text-primary",
 } as const;
 

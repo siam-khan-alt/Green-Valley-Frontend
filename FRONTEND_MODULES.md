@@ -76,7 +76,7 @@ Legend: ✅ done · 🔨 in progress · ⬜ pending
 | 4 | **API Core** | ✅ |
 | 5 | **Projects** | ✅ |
 | 6 | **Schedule** | ✅ |
-| 7 | **WorkPackages** | ⬜ |
+| 7 | **WorkPackages** | ✅ |
 | 8 | **BOQ** | ⬜ |
 | 9 | **Procurement** | ⬜ |
 | 10 | **Materials** | ⬜ |
