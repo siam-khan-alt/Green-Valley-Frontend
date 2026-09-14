@@ -71,7 +71,7 @@ Legend: ✅ done · 🔨 in progress · ⬜ pending
 | # | Module | Status |
 |---|--------|--------|
 | 1 | **UI Kit (Design System)** | ✅ |
-| 2 | **Auth & Session** | ⬜ |
+| 2 | **Auth & Session** | ✅ |
 | 3 | **App Shell / Layout** | ⬜ |
 | 4 | **API Core** | ⬜ |
 | 5 | **Projects** | ⬜ |
