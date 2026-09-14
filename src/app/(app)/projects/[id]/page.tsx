@@ -156,6 +156,32 @@ export default function ProjectDetailPage() {
           )}
         </div>
       </div>
+      <div className="flex flex-wrap items-center gap-2">
+        <Link href={`/projects/${id}/schedule`}>
+          <Button variant="outline">Schedule</Button>
+        </Link>
+        <Link href={`/projects/${id}/work-packages`}>
+          <Button variant="outline">Work packages</Button>
+        </Link>
+        <Link href={`/projects/${id}/boq`}>
+          <Button variant="outline">BOQ</Button>
+        </Link>
+        <Link href={`/projects/${id}/procurement`}>
+          <Button variant="outline">Procurement</Button>
+        </Link>
+        <Link href={`/projects/${id}/labor`}>
+          <Button variant="outline">Labor</Button>
+        </Link>
+        <Link href={`/projects/${id}/machinery`}>
+          <Button variant="outline">Machinery</Button>
+        </Link>
+        {canWrite && (
+          <Link href={`/projects/${id}/operations`}>
+            <Button variant="outline">Operations (DPR)</Button>
+          </Link>
+        )}
+      </div>
+      </div>
 
       <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <KpiCard

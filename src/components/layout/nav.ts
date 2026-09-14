@@ -25,6 +25,8 @@ export const ICONS = {
     "M16 11a4 4 0 1 1 0-8 4 4 0 0 1 0 8Zm-5.5 9c.7-2.6 2.5-4.5 5.5-4.5s4.8 1.9 5.5 4.5M4 11a4 4 0 1 1 0-8 4 4 0 0 1 0 8Zm3.1 4.4C5.6 16.6 4.3 17.9 3.5 20M15 16.5c-2.1 0-4.1.9-5.6 2.6",
   contractors:
     "M9 7h6M9 7a2 2 0 0 1-2-2V3.5M9 7c0 2.8-1.2 4.5-3 6l1 2h10l1-2c-1.8-1.5-3-3.2-3-6M15 7a2 2 0 0 0 2-2V3.5M7 21h10M7 21c.5-2.5 1.8-4.5 5-4.5s4.5 2 5 4.5M7 21v.5M17 21v.5",
+  operations:
+    "M12 4v16m8-8H4m7-7 5 5-5 5",
 } as const;
 
 /** Single source of truth for sidebar navigation. Future modules add their items here. */
@@ -43,6 +45,10 @@ export const NAV_GROUPS: NavGroup[] = [
       { label: "Suppliers", href: "/suppliers", icon: ICONS.suppliers },
       { label: "Contractors", href: "/contractors", icon: ICONS.contractors },
     ],
+  },
+  {
+    label: "Site Operations",
+    items: [{ label: "Operations (DPR)", href: "/operations", icon: ICONS.operations }],
   },
   {
     label: "Design System",
