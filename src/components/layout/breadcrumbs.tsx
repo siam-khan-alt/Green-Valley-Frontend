@@ -23,6 +23,8 @@ const SEGMENT_LABELS: Record<string, string> = {
   expenses: "Expenses",
   profitability: "Profitability",
   reports: "Reports",
+  users: "Users & Roles",
+  "audit-log": "Audit Log",
 };
 
 const ID_SEGMENT = /^[a-z]+_[a-z0-9_]+$/i;

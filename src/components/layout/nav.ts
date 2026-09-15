@@ -39,6 +39,10 @@ export const ICONS = {
     "M3 13h4v8H3v-8zm7-6h4v14h-4V7zm7-5h4v19h-4V2z",
   reports:
     "M4 4h5v16H4V4zm6 0h5v10h-5V4zm6 0h4v16h-4V4z",
+  users:
+    "M12 11a4 4 0 1 1 0-8 4 4 0 0 1 0 8Zm-8 9a8 8 0 1 1 16 0H4Z",
+  audit:
+    "M5 3h14v18H5V3zm3 4h8v2H8V7zm0 4h8v2H8v-2zm0 4h5v2H8v-2z",
 } as const;
 
 /** Single source of truth for sidebar navigation. Future modules add their items here. */
@@ -68,6 +72,13 @@ export const NAV_GROUPS: NavGroup[] = [
       { label: "Variations", href: "/projects", icon: ICONS.variations },
       { label: "Expenses", href: "/projects", icon: ICONS.expenses },
       { label: "Profitability", href: "/projects", icon: ICONS.profitability },
+    ],
+  },
+  {
+    label: "Admin",
+    items: [
+      { label: "Users & Roles", href: "/users", icon: ICONS.users },
+      { label: "Audit Log", href: "/audit-log", icon: ICONS.audit },
     ],
   },
   {

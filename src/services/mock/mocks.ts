@@ -16,6 +16,7 @@ import "@/features/variations/services/variations.mock";
 import "@/features/expenses/services/expenses.mock";
 import "@/features/profitability/services/profitability.mock";
 import "@/features/reports/services/reports.mock";
+import "@/features/users/services/users.mock";
 
 registerMock("get", "/meta", async () => ({
   status: 200,
