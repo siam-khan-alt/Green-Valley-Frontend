@@ -5,7 +5,7 @@ import type { DailyProgressReport, DprPayload } from "../types";
 export const dprApi = {
   async list(projectId: string): Promise<DailyProgressReport[]> {
     try {
-      return await api.get<DailyProgressReport[]>(`/api/v1/projects/${projectId}/dpr/`);
+      return await api.get<DailyProgressReport[]>(`/projects/${projectId}/daily-reports`);
     } catch (error) {
       throw toApiError(error as AxiosError);
     }
@@ -13,7 +13,7 @@ export const dprApi = {
 
   async create(projectId: string, payload: DprPayload): Promise<DailyProgressReport> {
     try {
-      return await api.post<DailyProgressReport>(`/api/v1/projects/${projectId}/dpr/`, payload);
+      return await api.post<DailyProgressReport>(`/projects/${projectId}/dpr`, payload);
     } catch (error) {
       throw toApiError(error as AxiosError);
     }
@@ -21,7 +21,7 @@ export const dprApi = {
 
   async update(id: string, patch: Partial<DprPayload>): Promise<DailyProgressReport> {
     try {
-      return await api.patch<DailyProgressReport>(`/api/v1/dpr/${id}/`, patch);
+      return await api.patch<DailyProgressReport>(`/dpr/${id}`, patch);
     } catch (error) {
       throw toApiError(error as AxiosError);
     }
@@ -29,7 +29,7 @@ export const dprApi = {
 
   async remove(id: string): Promise<void> {
     try {
-      await api.del(`/api/v1/dpr/${id}/`);
+      await api.del(`/dpr/${id}`);
     } catch (error) {
       throw toApiError(error as AxiosError);
     }

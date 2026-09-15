@@ -1,6 +1,11 @@
 import { registerMock } from "@/services/mock/adapter";
 import { DPR_WEATHER_OPTIONS } from "../constants";
-import type { DailyProgressReport, DprPayload } from "../types";
+import type {
+  DailyProgressReport,
+  DprLaborEntry,
+  DprMachineryEntry,
+  DprPayload,
+} from "../types";
 
 function wait<T>(result: { status: number; data: T }): Promise<{ status: number; data: T }> {
   return new Promise((resolve) => {
@@ -131,7 +136,7 @@ registerMock("get", "/projects/{projectId}/daily-reports", async (config, params
   return wait({ status: 200, data: projectDprs });
 });
 
-registerMock("get", "/api/v1/projects/{id}/progress", async (config, params) => {
+registerMock("get", "/projects/{id}/progress", async (config, params) => {
   const projectId = params.id;
   const projectDprs = dprs.filter((d) => d.project_id === projectId).sort((a, b) => b.date.localeCompare(a.date));
   const progress: { date: string; percent_complete: number; notes?: string }[] = projectDprs.map((d) => {

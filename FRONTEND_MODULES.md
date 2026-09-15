@@ -85,7 +85,7 @@ Legend: ✅ done · 🔨 in progress · ⬜ pending
 | 13 | **Labor (Muster Roll)** | ✅ |
 | 14 | **Machinery** | ✅ |
 | 15 | **Operations (DPR)** | ✅ |
-| 16 | **Quality** | ⬜ |
+| 16 | **Quality** | ✅ |
 | 17 | **Billing** | ⬜ |
 | 18 | **Variations** | ⬜ |
 | 19 | **Expenses & Payments** | ⬜ |

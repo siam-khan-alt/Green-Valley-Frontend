@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import {
@@ -10,11 +10,9 @@ import {
   EmptyState,
   ErrorState,
   LoadingState,
+  Select,
   Modal,
   Tabs,
-  TabsList,
-  TabsTrigger,
-  TabsContent,
   useToast,
 } from "@/components/ui";
 import { useAuth } from "@/features/auth";
@@ -29,7 +27,7 @@ import {
   useDprList,
   useUpdateDpr,
 } from "@/features/operations";
-import type { DailyProgressReport } from "@/features/operations";
+import type { DailyProgressReport, DprPayload } from "@/features/operations";
 
 export default function OperationsPage() {
   const params = useParams();
@@ -108,7 +106,7 @@ export default function OperationsPage() {
     [dprs]
   );
 
-  async function handleSave(payload) {
+  async function handleSave(payload: DprPayload) {
     if (editing) {
       await updateDpr.mutateAsync({ id: editing.id, patch: payload });
       toast({ title: "DPR updated", variant: "success" });
@@ -159,106 +157,110 @@ export default function OperationsPage() {
       </div>
 
       <div className="mt-6">
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList>
-            <TabsTrigger value="feed">DPR Feed</TabsTrigger>
-            <TabsTrigger value="progress">Progress Chart</TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="feed" className="mt-4">
-            {sortedDprs.length === 0 ? (
-              <EmptyState
-                title="No daily reports yet"
-                description="Log daily progress, labor, and machinery to track site activity."
-                action={canWrite ? <Button onClick={() => setFormOpen(true)}>Add DPR</Button> : undefined}
-              />
-            ) : (
-              <div className="space-y-3">
-                {sortedDprs.map((dpr) => (
-                  <Card key={dpr.id} className="p-4">
-                    <div className="flex flex-wrap items-start justify-between gap-3">
-                      <div className="flex-1 min-w-[200px]">
-                        <div className="flex items-center gap-2 mb-1">
-                          <span className="font-medium text-text">{dpr.work_package_code}</span>
-                          <Badge variant="neutral">{dpr.work_package_name}</Badge>
-                          <Badge variant="info">{dpr.weather}</Badge>
-                        </div>
-                        <p className="text-sm text-text-muted">{dpr.work_done}</p>
-                        <div className="mt-2 flex flex-wrap items-center gap-3 text-xs text-text-muted">
-                          <span>Qty: <span className="font-medium text-text">{dpr.quantity_achieved}</span></span>
-                          <span>
-                            Labor: ৳{dpr.labor_entries
-                              .reduce((s, e) => s + e.head_count * e.hours_worked * e.rate, 0)
-                              .toLocaleString()}
-                          </span>
-                          <span>
-                            Machinery: ৳{dpr.machinery_entries.reduce((s, e) => s + e.hours_used * e.rate, 0).toLocaleString()}
-                          </span>
-                          <span>By {dpr.created_by}</span>
-                        </div>
-                        {dpr.notes && <p className="mt-2 text-sm text-text-muted">{dpr.notes}</p>}
-                      </div>
-                      <div className="flex gap-2">
-                        <span className="self-center text-xs text-text-muted">
-                          {new Date(dpr.date).toLocaleDateString("en-GB")}
-                        </span>
-                        {canWrite && (
-                          <>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => {
-                                setEditing(dpr);
-                                setFormOpen(true);
-                              }}
-                            >
-                              Edit
-                            </Button>
+        <Tabs
+          tabs={[
+            { value: "feed", label: "DPR Feed" },
+            { value: "progress", label: "Progress Chart" },
+          ]}
+          value={activeTab}
+          onChange={setActiveTab}
+        >
+          {(tab) =>
+            tab === "feed" ? (
+              <div className="mt-1">
+                {sortedDprs.length === 0 ? (
+                  <EmptyState
+                    title="No daily reports yet"
+                    description="Log daily progress, labor, and machinery to track site activity."
+                    action={canWrite ? <Button onClick={() => setFormOpen(true)}>Add DPR</Button> : undefined}
+                  />
+                ) : (
+                  <div className="space-y-3">
+                    {sortedDprs.map((dpr) => (
+                      <Card key={dpr.id} className="p-4">
+                        <div className="flex flex-wrap items-start justify-between gap-3">
+                          <div className="flex-1 min-w-[200px]">
+                            <div className="flex items-center gap-2 mb-1">
+                              <span className="font-medium text-text">{dpr.work_package_code}</span>
+                              <Badge variant="neutral">{dpr.work_package_name}</Badge>
+                              <Badge variant="info">{dpr.weather}</Badge>
+                            </div>
+                            <p className="text-sm text-text-muted">{dpr.work_done}</p>
+                            <div className="mt-2 flex flex-wrap items-center gap-3 text-xs text-text-muted">
+                              <span>Qty: <span className="font-medium text-text">{dpr.quantity_achieved}</span></span>
+                              <span>
+                                Labor: ৳{dpr.labor_entries
+                                  .reduce((s, e) => s + e.head_count * e.hours_worked * e.rate, 0)
+                                  .toLocaleString()}
+                              </span>
+                              <span>
+                                Machinery: ৳{dpr.machinery_entries.reduce((s, e) => s + e.hours_used * e.rate, 0).toLocaleString()}
+                              </span>
+                              <span>By {dpr.created_by}</span>
+                            </div>
+                            {dpr.notes && <p className="mt-2 text-sm text-text-muted">{dpr.notes}</p>}
+                          </div>
+                          <div className="flex gap-2">
+                            <span className="self-center text-xs text-text-muted">
+                              {new Date(dpr.date).toLocaleDateString("en-GB")}
+                            </span>
                             {canWrite && (
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                variant="danger"
-                                onClick={() => setDeleting(dpr)}
-                              >
-                                Delete
-                              </Button>
+                              <>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => {
+                                    setEditing(dpr);
+                                    setFormOpen(true);
+                                  }}
+                                >
+                                  Edit
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="text-danger hover:text-danger"
+                                  onClick={() => setDeleting(dpr)}
+                                >
+                                  Delete
+                                </Button>
+                              </>
                             )}
-                          </>
-                        )}
-                      </div>
-                    </div>
-                  </Card>
-                ))}
+                          </div>
+                        </div>
+                      </Card>
+                    ))}
+                  </div>
+                )}
               </div>
-            )}
-          </TabsContent>
-
-          <TabsContent value="progress" className="mt-4">
-            <div className="space-y-4">
-              <div className="flex items-center gap-3">
-                <label className="text-sm font-medium text-text">Select work package</label>
-                <Select
-                  value={chartWpId}
-                  onChange={(e) => setChartWpId(e.target.value)}
-                  placeholder="Choose a work package…"
-                >
-                  {workPackages.map((wp) => (
-                    <option key={wp.id} value={wp.id}>
-                      {wp.code} — {wp.name}
-                    </option>
-                  ))}
-                </Select>
+            ) : (
+              <div className="mt-1">
+                <div className="space-y-4">
+                  <div className="flex items-center gap-3">
+                    <label className="text-sm font-medium text-text">Select work package</label>
+                    <Select
+                      value={chartWpId}
+                      onChange={(e) => setChartWpId(e.target.value)}
+                    >
+                      <option value="">Select…</option>
+                      {workPackages.map((wp) => (
+                        <option key={wp.id} value={wp.id}>
+                          {wp.code} — {wp.name}
+                        </option>
+                      ))}
+                    </Select>
+                  </div>
+                  {chartWpId ? (
+                    <DprProgressChart dprs={sortedDprs} workPackageId={chartWpId} />
+                  ) : (
+                    <p className="text-center py-8 text-text-muted">
+                      Select a work package to view its progress trend.
+                    </p>
+                  )}
+                </div>
               </div>
-              {chartWpId ? (
-                <DprProgressChart dprs={sortedDprs} workPackageId={chartWpId} />
-              ) : (
-                <p className="text-center py-8 text-text-muted">
-                  Select a work package to view its progress trend.
-                </p>
-              )}
-            </div>
-          </TabsContent>
+            )
+          }
         </Tabs>
       </div>
 
