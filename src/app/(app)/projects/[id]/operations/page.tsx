@@ -293,14 +293,16 @@ export default function OperationsPage() {
         subtitle="This action cannot be undone."
         size="sm"
       >
-        <p className="text-sm text-text-muted">
-          Delete the report for <span className="font-semibold text-text">
-            {deleting?.work_package_code}</span> on
-            <span className="font-semibold text-text">
-              {new Date(deleting!.date).toLocaleDateString("en-GB")}
-            </span>
-          ?
-        </p>
+        {deleting && (
+          <p className="text-sm text-text-muted">
+            Delete the report for <span className="font-semibold text-text">
+              {deleting.work_package_code}</span> on
+              <span className="font-semibold text-text">
+                {new Date(deleting.date).toLocaleDateString("en-GB")}
+              </span>
+            ?
+          </p>
+        )}
         <div className="mt-5 flex justify-end gap-2">
           <Button variant="secondary" onClick={() => setDeleting(null)}>Cancel</Button>
           <Button variant="danger" onClick={handleDelete}>Delete DPR</Button>
