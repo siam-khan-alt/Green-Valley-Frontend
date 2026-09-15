@@ -90,7 +90,7 @@ Legend: ✅ done · 🔨 in progress · ⬜ pending
 | 18 | **Variations** | ✅ |
 | 19 | **Expenses & Payments** | ✅ |
 | 20 | **Profitability + Simulation** | ✅ |
-| 21 | **Reports** | ⬜ |
+| 21 | **Reports** | ✅ |
 | 22 | **Users & Roles** | ⬜ |
 | 23 | **Audit Log** | ⬜ |
 

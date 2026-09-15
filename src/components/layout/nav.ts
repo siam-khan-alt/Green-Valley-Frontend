@@ -37,6 +37,8 @@ export const ICONS = {
     "M4 4h16v3H4V4zm0 5h16v11H4V9zm3 5h6v2H7v-2zm8 0h2v2h-2v-2zm-8 4h6v2H7v-2z",
   profitability:
     "M3 13h4v8H3v-8zm7-6h4v14h-4V7zm7-5h4v19h-4V2z",
+  reports:
+    "M4 4h5v16H4V4zm6 0h5v10h-5V4zm6 0h4v16h-4V4z",
 } as const;
 
 /** Single source of truth for sidebar navigation. Future modules add their items here. */
@@ -46,6 +48,7 @@ export const NAV_GROUPS: NavGroup[] = [
     items: [
       { label: "Dashboard", href: "/dashboard", icon: ICONS.dashboard, match: ["/"] },
       { label: "Projects", href: "/projects", icon: ICONS.projects },
+      { label: "Reports", href: "/reports", icon: ICONS.reports },
     ],
   },
   {
