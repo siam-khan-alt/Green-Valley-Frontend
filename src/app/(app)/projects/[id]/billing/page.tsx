@@ -70,7 +70,6 @@ export default function BillingPage() {
   const [editingMeasurement, setEditingMeasurement] = useState<Measurement | null>(null);
   const [deletingMeasurement, setDeletingMeasurement] = useState<Measurement | null>(null);
   const [billFormOpen, setBillFormOpen] = useState(false);
-  const [editingBill, setEditingBill] = useState<RaBill | null>(null);
   const [deductionsBill, setDeductionsBill] = useState<RaBill | null>(null);
 
   const kpis = useMemo(() => {
@@ -127,9 +126,8 @@ export default function BillingPage() {
     setEditingMeasurement(null);
   }
 
-  async function handleMeasurementStatus(patch: MeasurementPatch) {
-    if (!editingMeasurement) return;
-    await updateMeasurement.mutateAsync({ id: editingMeasurement.id, patch });
+  async function handleMeasurementStatus(m: Measurement, patch: MeasurementPatch) {
+    await updateMeasurement.mutateAsync({ id: m.id, patch });
     toast({ title: "Measurement status updated", variant: "success" });
     setEditingMeasurement(null);
   }
@@ -147,11 +145,9 @@ export default function BillingPage() {
     setBillFormOpen(false);
   }
 
-  async function handleBillEdit(patch: RaBillPatch) {
-    if (!editingBill) return;
-    await updateRaBill.mutateAsync({ id: editingBill.id, patch });
+  async function handleBillEdit(bill: RaBill, patch: RaBillPatch) {
+    await updateRaBill.mutateAsync({ id: bill.id, patch });
     toast({ title: "RA bill updated", variant: "success" });
-    setEditingBill(null);
   }
 
   async function handleGenerate(bill: RaBill) {
@@ -243,10 +239,7 @@ export default function BillingPage() {
                                   <Button
                                     variant="outline"
                                     size="sm"
-                                    onClick={() => {
-                                      setEditingMeasurement(m);
-                                      void handleMeasurementStatus({ status: "verified" });
-                                    }}
+                                    onClick={() => void handleMeasurementStatus(m, { status: "verified" })}
                                   >
                                     Verify
                                   </Button>
@@ -255,10 +248,7 @@ export default function BillingPage() {
                                   <Button
                                     variant="outline"
                                     size="sm"
-                                    onClick={() => {
-                                      setEditingMeasurement(m);
-                                      void handleMeasurementStatus({ status: "approved" });
-                                    }}
+                                    onClick={() => void handleMeasurementStatus(m, { status: "approved" })}
                                   >
                                     Approve
                                   </Button>
@@ -354,10 +344,9 @@ export default function BillingPage() {
                               <Button
                                 variant="outline"
                                 size="sm"
-                                onClick={() => {
-                                  setEditingBill(bill);
-                                  void handleBillEdit({ status: bill.status === "draft" ? "submitted" : "approved" });
-                                }}
+                                onClick={() =>
+                                  void handleBillEdit(bill, { status: bill.status === "draft" ? "submitted" : "approved" })
+                                }
                               >
                                 {bill.status === "draft" ? "Submit" : "Approve"}
                               </Button>

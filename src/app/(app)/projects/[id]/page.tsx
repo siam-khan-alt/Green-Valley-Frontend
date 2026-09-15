@@ -152,6 +152,9 @@ export default function ProjectDetailPage() {
           <Link href={`/projects/${id}/variations`}>
             <Button variant="outline">Variations</Button>
           </Link>
+          <Link href={`/projects/${id}/expenses`}>
+            <Button variant="outline">Expenses</Button>
+          </Link>
           {canWrite && (
             <>
               <Button variant="secondary" onClick={() => setEditOpen(true)}>

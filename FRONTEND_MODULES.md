@@ -88,7 +88,7 @@ Legend: ✅ done · 🔨 in progress · ⬜ pending
 | 16 | **Quality** | ✅ |
 | 17 | **Billing** | ✅ |
 | 18 | **Variations** | ✅ |
-| 19 | **Expenses & Payments** | ⬜ |
+| 19 | **Expenses & Payments** | ✅ |
 | 20 | **Profitability + Simulation** | ⬜ |
 | 21 | **Reports** | ⬜ |
 | 22 | **Users & Roles** | ⬜ |

@@ -90,9 +90,8 @@ export default function VariationsPage() {
     setEditing(null);
   }
 
-  async function handleStatus(status: "approved" | "rejected") {
-    if (!editing) return;
-    await updateVariation.mutateAsync({ id: editing.id, patch: { status } });
+  async function handleStatus(v: Variation, status: "approved" | "rejected") {
+    await updateVariation.mutateAsync({ id: v.id, patch: { status } });
     toast({ title: status === "approved" ? "Variation approved" : "Variation rejected", variant: status === "approved" ? "success" : "info" });
     setEditing(null);
   }
@@ -164,10 +163,10 @@ export default function VariationsPage() {
                   <div className="flex flex-wrap gap-2">
                     {canApprove && v.status === "proposed" && (
                       <>
-                        <Button variant="outline" size="sm" onClick={() => { setEditing(v); void handleStatus("approved"); }}>
+                        <Button variant="outline" size="sm" onClick={() => { setEditing(v); void handleStatus(v, "approved"); }}>
                           Approve
                         </Button>
-                        <Button variant="ghost" size="sm" className="text-danger hover:text-danger" onClick={() => { setEditing(v); void handleStatus("rejected"); }}>
+                        <Button variant="ghost" size="sm" className="text-danger hover:text-danger" onClick={() => { setEditing(v); void handleStatus(v, "rejected"); }}>
                           Reject
                         </Button>
                       </>

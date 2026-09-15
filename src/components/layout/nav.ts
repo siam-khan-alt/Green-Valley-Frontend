@@ -33,6 +33,8 @@ export const ICONS = {
     "M4 5v14h16V5H4Zm2 2h12v10H6V7Zm2 3h8v2H8v-2Zm0 4h8v2H8v-2Z",
   variations:
     "M4 4h9v9H4V4zm7 7V6H6v5h5zM7 17h4v2H7v-2zm6-9h7v2h-7V8zm-3 4v7h7v-7h-7zm2 5v-3h3v3h-3z",
+  expenses:
+    "M4 4h16v3H4V4zm0 5h16v11H4V9zm3 5h6v2H7v-2zm8 0h2v2h-2v-2zm-8 4h6v2H7v-2z",
 } as const;
 
 /** Single source of truth for sidebar navigation. Future modules add their items here. */
@@ -59,6 +61,7 @@ export const NAV_GROUPS: NavGroup[] = [
       { label: "Inspections", href: "/projects", icon: ICONS.quality },
       { label: "Billing", href: "/projects", icon: ICONS.billing },
       { label: "Variations", href: "/projects", icon: ICONS.variations },
+      { label: "Expenses", href: "/projects", icon: ICONS.expenses },
     ],
   },
   {

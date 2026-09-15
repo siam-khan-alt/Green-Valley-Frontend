@@ -13,6 +13,7 @@ import "@/features/operations/services/dpr.mock";
 import "@/features/quality/services/inspections.mock";
 import "@/features/billing/services/billing.mock";
 import "@/features/variations/services/variations.mock";
+import "@/features/expenses/services/expenses.mock";
 
 registerMock("get", "/meta", async () => ({
   status: 200,
