@@ -2,8 +2,6 @@ import { registerMock } from "@/services/mock/adapter";
 import { DPR_WEATHER_OPTIONS } from "../constants";
 import type {
   DailyProgressReport,
-  DprLaborEntry,
-  DprMachineryEntry,
   DprPayload,
 } from "../types";
 
@@ -27,9 +25,9 @@ function seed(): void {
     {
       id: "dpr_001",
       project_id: "p_001",
-      work_package_id: "wp_001_01",
+      work_package_id: "wp_p_001_01",
       work_package_code: "WP-01",
-      work_package_name: "Site Clearance & Earthwork",
+      work_package_name: "Mobilization & site setup",
       date: daysAgo(10),
       weather: "sunny",
       work_done: "Cleared vegetation and topsoil removal for 2,500 sqm",
@@ -49,9 +47,9 @@ function seed(): void {
     {
       id: "dpr_002",
       project_id: "p_001",
-      work_package_id: "wp_001_01",
+      work_package_id: "wp_p_001_01",
       work_package_code: "WP-01",
-      work_package_name: "Site Clearance & Earthwork",
+      work_package_name: "Mobilization & site setup",
       date: daysAgo(9),
       weather: "cloudy",
       work_done: "Excavation and hauling for foundation trenches",
@@ -70,9 +68,9 @@ function seed(): void {
     {
       id: "dpr_003",
       project_id: "p_001",
-      work_package_id: "wp_001_02",
+      work_package_id: "wp_p_001_02",
       work_package_code: "WP-02",
-      work_package_name: "Piling Works",
+      work_package_name: "Piling & deep foundation",
       date: daysAgo(8),
       weather: "sunny",
       work_done: "Completed 4 bored piles (P-01 to P-04), concrete poured",
@@ -108,24 +106,16 @@ function validate(payload: DprPayload): Record<string, string[]> {
   return errors;
 }
 
-function sumLaborCost(entries: DprLaborEntry[]) {
-  return entries.reduce((sum, e) => sum + e.head_count * e.hours_worked * e.rate, 0);
-}
-
-function sumMachineryCost(entries: DprMachineryEntry[]) {
-  return entries.reduce((sum, e) => sum + e.hours_used * e.rate, 0);
-}
-
-function getProjectWorkPackages(projectId: string) {
+function getProjectWorkPackages() {
   const wpMap: Record<string, { id: string; code: string; name: string }> = {
-    wp_001_01: { id: "wp_001_01", code: "WP-01", name: "Site Clearance & Earthwork" },
-    wp_001_02: { id: "wp_001_02", code: "WP-02", name: "Piling Works" },
-    wp_001_03: { id: "wp_001_03", code: "WP-03", name: "Foundation & Substructure" },
-    wp_001_04: { id: "wp_001_04", code: "WP-04", name: "Superstructure - Columns" },
-    wp_001_05: { id: "wp_001_05", code: "WP-05", name: "Slab & Beam Works" },
-    wp_001_06: { id: "wp_001_06", code: "WP-06", name: "MEP - Electrical & Plumbing" },
-    wp_001_07: { id: "wp_001_07", code: "WP-07", name: "Finishing - Plaster & Paint" },
-    wp_001_08: { id: "wp_001_08", code: "WP-08", name: "External Works & Landscaping" },
+    wp_p_001_01: { id: "wp_p_001_01", code: "WP-01", name: "Mobilization & site setup" },
+    wp_p_001_02: { id: "wp_p_001_02", code: "WP-02", name: "Piling & deep foundation" },
+    wp_p_001_03: { id: "wp_p_001_03", code: "WP-03", name: "Basement structure" },
+    wp_p_001_04: { id: "wp_p_001_04", code: "WP-04", name: "Superstructure slabs & columns" },
+    wp_p_001_05: { id: "wp_p_001_05", code: "WP-05", name: "Brickwork & partitions" },
+    wp_p_001_06: { id: "wp_p_001_06", code: "WP-06", name: "MEP works" },
+    wp_p_001_07: { id: "wp_p_001_07", code: "WP-07", name: "Finishing & facade" },
+    wp_p_001_08: { id: "wp_p_001_08", code: "WP-08", name: "External works & landscaping" },
   };
   return Object.values(wpMap);
 }
@@ -162,7 +152,7 @@ registerMock("post", "/projects/{projectId}/dpr", async (config, params) => {
   if (Object.keys(errors).length > 0) {
     return { status: 400, data: errors };
   }
-  const wp = getProjectWorkPackages(projectId).find((w) => w.id === payload.work_package_id);
+  const wp = getProjectWorkPackages().find((w) => w.id === payload.work_package_id);
   if (!wp) {
     return { status: 400, data: { work_package_id: ["Invalid work package."] } };
   }

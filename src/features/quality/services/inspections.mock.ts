@@ -27,9 +27,9 @@ function seed(): void {
     {
       id: "insp_001",
       project_id: "p_001",
-      work_package_id: "wp_001_02",
+      work_package_id: "wp_p_001_02",
       work_package_code: "WP-02",
-      work_package_name: "Piling Works",
+      work_package_name: "Piling & deep foundation",
       type: "foundation",
       requested_by: "Site Engineer",
       scheduled_date: daysAgo(7),
@@ -42,9 +42,9 @@ function seed(): void {
     {
       id: "insp_002",
       project_id: "p_001",
-      work_package_id: "wp_001_02",
+      work_package_id: "wp_p_001_02",
       work_package_code: "WP-02",
-      work_package_name: "Piling Works",
+      work_package_name: "Piling & deep foundation",
       type: "concrete",
       requested_by: "Site Supervisor",
       scheduled_date: daysAgo(3),
@@ -57,9 +57,9 @@ function seed(): void {
     {
       id: "insp_003",
       project_id: "p_001",
-      work_package_id: "wp_001_03",
+      work_package_id: "wp_p_001_03",
       work_package_code: "WP-03",
-      work_package_name: "Foundation & Substructure",
+      work_package_name: "Basement structure",
       type: "rebar",
       requested_by: "Site Engineer",
       scheduled_date: daysAhead(2),
@@ -71,9 +71,9 @@ function seed(): void {
     {
       id: "insp_004",
       project_id: "p_001",
-      work_package_id: "wp_001_04",
+      work_package_id: "wp_p_001_04",
       work_package_code: "WP-04",
-      work_package_name: "Superstructure - Columns",
+      work_package_name: "Superstructure slabs & columns",
       type: "structural",
       requested_by: "Project Manager",
       scheduled_date: daysAhead(10),
@@ -109,16 +109,16 @@ function validatePatch(patch: InspectionPatch): Record<string, string[]> {
   return errors;
 }
 
-function getProjectWorkPackages(projectId: string) {
+function getProjectWorkPackages() {
   const wpMap: Record<string, { id: string; code: string; name: string }> = {
-    wp_001_01: { id: "wp_001_01", code: "WP-01", name: "Site Clearance & Earthwork" },
-    wp_001_02: { id: "wp_001_02", code: "WP-02", name: "Piling Works" },
-    wp_001_03: { id: "wp_001_03", code: "WP-03", name: "Foundation & Substructure" },
-    wp_001_04: { id: "wp_001_04", code: "WP-04", name: "Superstructure - Columns" },
-    wp_001_05: { id: "wp_001_05", code: "WP-05", name: "Slab & Beam Works" },
-    wp_001_06: { id: "wp_001_06", code: "WP-06", name: "MEP - Electrical & Plumbing" },
-    wp_001_07: { id: "wp_001_07", code: "WP-07", name: "Finishing - Plaster & Paint" },
-    wp_001_08: { id: "wp_001_08", code: "WP-08", name: "External Works & Landscaping" },
+    wp_p_001_01: { id: "wp_p_001_01", code: "WP-01", name: "Mobilization & site setup" },
+    wp_p_001_02: { id: "wp_p_001_02", code: "WP-02", name: "Piling & deep foundation" },
+    wp_p_001_03: { id: "wp_p_001_03", code: "WP-03", name: "Basement structure" },
+    wp_p_001_04: { id: "wp_p_001_04", code: "WP-04", name: "Superstructure slabs & columns" },
+    wp_p_001_05: { id: "wp_p_001_05", code: "WP-05", name: "Brickwork & partitions" },
+    wp_p_001_06: { id: "wp_p_001_06", code: "WP-06", name: "MEP works" },
+    wp_p_001_07: { id: "wp_p_001_07", code: "WP-07", name: "Finishing & facade" },
+    wp_p_001_08: { id: "wp_p_001_08", code: "WP-08", name: "External works & landscaping" },
   };
   return Object.values(wpMap);
 }
@@ -138,7 +138,7 @@ registerMock("post", "/projects/{projectId}/inspections", async (config, params)
   if (Object.keys(errors).length > 0) {
     return { status: 400, data: errors };
   }
-  const wp = getProjectWorkPackages(projectId).find((w) => w.id === payload.work_package_id);
+  const wp = getProjectWorkPackages().find((w) => w.id === payload.work_package_id);
   if (!wp) {
     return { status: 400, data: { work_package_id: ["Invalid work package."] } };
   }

@@ -1,7 +1,6 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import Link from "next/link";
 import { useParams } from "next/navigation";
 import {
   Badge,
@@ -80,6 +79,11 @@ export default function OperationsPage() {
 
   const workPackages = wpQuery.data ?? [];
 
+  const sortedDprs = useMemo(
+    () => [...dprs].sort((a, b) => b.date.localeCompare(a.date) || b.created_at.localeCompare(a.created_at)),
+    [dprs]
+  );
+
   if (projectQuery.isPending || dprQuery.isPending || wpQuery.isPending) {
     return <LoadingState label="Loading project data…" />;
   }
@@ -100,11 +104,6 @@ export default function OperationsPage() {
 
   const project = projectQuery.data;
   if (!project) return null;
-
-  const sortedDprs = useMemo(
-    () => [...dprs].sort((a, b) => b.date.localeCompare(a.date) || b.created_at.localeCompare(a.created_at)),
-    [dprs]
-  );
 
   async function handleSave(payload: DprPayload) {
     if (editing) {

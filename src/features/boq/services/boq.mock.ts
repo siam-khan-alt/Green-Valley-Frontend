@@ -17,6 +17,10 @@ function wait<T>(result: { status: number; data: T }): Promise<{ status: number;
 
 const boqStore = new Map<string, BoqRecord>();
 
+export function boqItemRate(projectId: string, itemId: string): number {
+  return boqStore.get(projectId)?.items.find((i) => i.id === itemId)?.rate ?? 0;
+}
+
 function seed(): void {
   const mk = (
     boqId: string,
@@ -39,39 +43,39 @@ function seed(): void {
   };
 
   mk("boq_1", "p_001", "v1.2", [
-    { work_package: "wp_001_01", material: "Site establishment & temporary works", description: "Office, store, water & power connection for the site", unit: "no", quantity: 1, rate: 8000000 },
-    { work_package: "wp_001_01", material: "GI sheet hoarding & signboards", description: "Perimeter security hoarding with project signboards", unit: "rft", quantity: 900, rate: 3500 },
-    { work_package: "wp_001_02", material: "Excavation & earthwork", description: "Basement excavation including dewatering and backfill", unit: "cum", quantity: 12500, rate: 850 },
-    { work_package: "wp_001_02", material: "Bored piles (600 mm dia)", description: "Cast-in-situ bored pile with M30 concrete, 45 m avg depth", unit: "rft", quantity: 5200, rate: 7600 },
-    { work_package: "wp_001_02", material: "Pile caps & grade beams", description: "M30 reinforced pile caps and grade beams", unit: "cum", quantity: 1150, rate: 21000 },
-    { work_package: "wp_001_02", material: "Reinforcement steel — foundation", description: "MS bar (60 grade) cutting, bending and fixing", unit: "ton", quantity: 480, rate: 165000 },
-    { work_package: "wp_001_03", material: "Basement structure RCC", description: "Basement slabs, columns and retaining walls M30", unit: "cum", quantity: 1980, rate: 20500 },
-    { work_package: "wp_001_03", material: "Waterproofing membrane", description: "Self-adhesive waterproofing on basement walls and slabs", unit: "sft", quantity: 82000, rate: 260 },
-    { work_package: "wp_001_04", material: "Superstructure concrete", description: "Columns, beams and flat slabs M28 by ready-mix", unit: "cum", quantity: 3500, rate: 18500 },
-    { work_package: "wp_001_04", material: "Reinforcement steel — superstructure", description: "MS bar (60 grade) for columns, beams and slabs", unit: "ton", quantity: 420, rate: 165000 },
-    { work_package: "wp_001_04", material: "Formwork", description: "Timber/plywood formwork for slabs and beams", unit: "sft", quantity: 62000, rate: 480 },
-    { work_package: "wp_001_05", material: "Brickwork 7.5 in wall", description: "First class brick wall with cement mortar 1:6", unit: "cft", quantity: 68000, rate: 320 },
-    { work_package: "wp_001_05", material: "Cement plaster", description: "12 mm internal plaster and 20 mm external plaster", unit: "sft", quantity: 92000, rate: 95 },
-    { work_package: "wp_001_06", material: "MEP rough-in allowance", description: "Electrical, plumbing and HVAC rough-in works", unit: "no", quantity: 1, rate: 22000000 },
-    { work_package: "wp_001_07", material: "Flooring & tiles", description: "Vitrified tiles and granite flooring", unit: "sft", quantity: 48000, rate: 520 },
-    { work_package: "wp_001_07", material: "Paint & finishes", description: "Putty, emulsion and two-coat finishing paint", unit: "sft", quantity: 130000, rate: 105 },
-    { work_package: "wp_001_07", material: "Windows & glazing", description: "uPVC windows with double-glazed glass", unit: "sft", quantity: 9600, rate: 3400 },
-    { work_package: "wp_001_08", material: "External works & landscaping", description: "PCC road, boundary wall, plantation and finishing", unit: "no", quantity: 1, rate: 9500000 },
+    { work_package: "wp_p_001_01", material: "Site establishment & temporary works", description: "Office, store, water & power connection for the site", unit: "no", quantity: 1, rate: 8000000 },
+    { work_package: "wp_p_001_01", material: "GI sheet hoarding & signboards", description: "Perimeter security hoarding with project signboards", unit: "rft", quantity: 900, rate: 3500 },
+    { work_package: "wp_p_001_02", material: "Excavation & earthwork", description: "Basement excavation including dewatering and backfill", unit: "cum", quantity: 12500, rate: 850 },
+    { work_package: "wp_p_001_02", material: "Bored piles (600 mm dia)", description: "Cast-in-situ bored pile with M30 concrete, 45 m avg depth", unit: "rft", quantity: 5200, rate: 7600 },
+    { work_package: "wp_p_001_02", material: "Pile caps & grade beams", description: "M30 reinforced pile caps and grade beams", unit: "cum", quantity: 1150, rate: 21000 },
+    { work_package: "wp_p_001_02", material: "Reinforcement steel — foundation", description: "MS bar (60 grade) cutting, bending and fixing", unit: "ton", quantity: 480, rate: 165000 },
+    { work_package: "wp_p_001_03", material: "Basement structure RCC", description: "Basement slabs, columns and retaining walls M30", unit: "cum", quantity: 1980, rate: 20500 },
+    { work_package: "wp_p_001_03", material: "Waterproofing membrane", description: "Self-adhesive waterproofing on basement walls and slabs", unit: "sft", quantity: 82000, rate: 260 },
+    { work_package: "wp_p_001_04", material: "Superstructure concrete", description: "Columns, beams and flat slabs M28 by ready-mix", unit: "cum", quantity: 3500, rate: 18500 },
+    { work_package: "wp_p_001_04", material: "Reinforcement steel — superstructure", description: "MS bar (60 grade) for columns, beams and slabs", unit: "ton", quantity: 420, rate: 165000 },
+    { work_package: "wp_p_001_04", material: "Formwork", description: "Timber/plywood formwork for slabs and beams", unit: "sft", quantity: 62000, rate: 480 },
+    { work_package: "wp_p_001_05", material: "Brickwork 7.5 in wall", description: "First class brick wall with cement mortar 1:6", unit: "cft", quantity: 68000, rate: 320 },
+    { work_package: "wp_p_001_05", material: "Cement plaster", description: "12 mm internal plaster and 20 mm external plaster", unit: "sft", quantity: 92000, rate: 95 },
+    { work_package: "wp_p_001_06", material: "MEP rough-in allowance", description: "Electrical, plumbing and HVAC rough-in works", unit: "no", quantity: 1, rate: 22000000 },
+    { work_package: "wp_p_001_07", material: "Flooring & tiles", description: "Vitrified tiles and granite flooring", unit: "sft", quantity: 48000, rate: 520 },
+    { work_package: "wp_p_001_07", material: "Paint & finishes", description: "Putty, emulsion and two-coat finishing paint", unit: "sft", quantity: 130000, rate: 105 },
+    { work_package: "wp_p_001_07", material: "Windows & glazing", description: "uPVC windows with double-glazed glass", unit: "sft", quantity: 9600, rate: 3400 },
+    { work_package: "wp_p_001_08", material: "External works & landscaping", description: "PCC road, boundary wall, plantation and finishing", unit: "no", quantity: 1, rate: 9500000 },
   ]);
 
   mk("boq_2", "p_002", "v1.0", [
-    { work_package: "wp_002_01", material: "Site clearance & leveling", description: "Clearing, grubbing and leveling of the site", unit: "no", quantity: 1, rate: 600000 },
-    { work_package: "wp_002_02", material: "Strip foundation PCC", description: "Plain cement concrete under foundations", unit: "cum", quantity: 420, rate: 14500 },
-    { work_package: "wp_002_02", material: "Ground beam RCC", description: "Reinforced ground beams M25", unit: "cum", quantity: 310, rate: 19500 },
-    { work_package: "wp_002_03", material: "Column & slab RCC", description: "Ground floor columns and roof slab M25", unit: "cum", quantity: 520, rate: 18300 },
-    { work_package: "wp_002_03", material: "Roof insulation", description: "Compressed polystyrene insulation with screed", unit: "sft", quantity: 18500, rate: 240 },
+    { work_package: "wp_p_002_01", material: "Site clearance & leveling", description: "Clearing, grubbing and leveling of the site", unit: "no", quantity: 1, rate: 600000 },
+    { work_package: "wp_p_002_02", material: "Strip foundation PCC", description: "Plain cement concrete under foundations", unit: "cum", quantity: 420, rate: 14500 },
+    { work_package: "wp_p_002_02", material: "Ground beam RCC", description: "Reinforced ground beams M25", unit: "cum", quantity: 310, rate: 19500 },
+    { work_package: "wp_p_002_03", material: "Column & slab RCC", description: "Ground floor columns and roof slab M25", unit: "cum", quantity: 520, rate: 18300 },
+    { work_package: "wp_p_002_03", material: "Roof insulation", description: "Compressed polystyrene insulation with screed", unit: "sft", quantity: 18500, rate: 240 },
   ]);
 
   mk("boq_3", "p_003", "v1.0", [
-    { work_package: "wp_003_01", material: "Tower crane & hoarding", description: "Tower crane hire, hoarding and site office", unit: "no", quantity: 1, rate: 4200000 },
-    { work_package: "wp_003_02", material: "Raft foundation RCC", description: "Full raft foundation M35 waterproofing concrete", unit: "cum", quantity: 2100, rate: 22800 },
-    { work_package: "wp_003_02", material: "Reinforcement steel", description: "MS bar (60 grade) for raft foundation", unit: "ton", quantity: 540, rate: 165000 },
-    { work_package: "wp_003_03", material: "Core & shear wall concrete", description: "Core walls and lift shafts M35 by ready-mix", unit: "cum", quantity: 1450, rate: 20500 },
+    { work_package: "wp_p_003_01", material: "Tower crane & hoarding", description: "Tower crane hire, hoarding and site office", unit: "no", quantity: 1, rate: 4200000 },
+    { work_package: "wp_p_003_02", material: "Raft foundation RCC", description: "Full raft foundation M35 waterproofing concrete", unit: "cum", quantity: 2100, rate: 22800 },
+    { work_package: "wp_p_003_02", material: "Reinforcement steel", description: "MS bar (60 grade) for raft foundation", unit: "ton", quantity: 540, rate: 165000 },
+    { work_package: "wp_p_003_03", material: "Core & shear wall concrete", description: "Core walls and lift shafts M35 by ready-mix", unit: "cum", quantity: 1450, rate: 20500 },
   ]);
 
   mk("boq_4", "p_004", "v1.0", []);

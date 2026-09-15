@@ -29,6 +29,8 @@ export const ICONS = {
     "M12 4v16m8-8H4m7-7 5 5-5 5",
   quality:
     "M12 2 4 6v5c0 5 3.4 9.4 8 11 4.6-1.6 8-6 8-11V6l-8-4Zm-2.5 12.5L7.5 12l-1 1L9.5 15 12 12l-1-1-2.5 3.5Z",
+  billing:
+    "M4 5v14h16V5H4Zm2 2h12v10H6V7Zm2 3h8v2H8v-2Zm0 4h8v2H8v-2Z",
 } as const;
 
 /** Single source of truth for sidebar navigation. Future modules add their items here. */
@@ -49,12 +51,12 @@ export const NAV_GROUPS: NavGroup[] = [
     ],
   },
   {
-    label: "Site Operations",
-    items: [{ label: "Operations (DPR)", href: "/operations", icon: ICONS.operations }],
-  },
-  {
-    label: "Quality",
-    items: [{ label: "Inspections", href: "/quality", icon: ICONS.quality }],
+    label: "Site & Billing",
+    items: [
+      { label: "Operations (DPR)", href: "/projects", icon: ICONS.operations },
+      { label: "Inspections", href: "/projects", icon: ICONS.quality },
+      { label: "Billing", href: "/projects", icon: ICONS.billing },
+    ],
   },
   {
     label: "Design System",

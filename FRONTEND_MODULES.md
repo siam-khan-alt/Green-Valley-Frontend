@@ -86,7 +86,7 @@ Legend: ✅ done · 🔨 in progress · ⬜ pending
 | 14 | **Machinery** | ✅ |
 | 15 | **Operations (DPR)** | ✅ |
 | 16 | **Quality** | ✅ |
-| 17 | **Billing** | ⬜ |
+| 17 | **Billing** | ✅ |
 | 18 | **Variations** | ⬜ |
 | 19 | **Expenses & Payments** | ⬜ |
 | 20 | **Profitability + Simulation** | ⬜ |

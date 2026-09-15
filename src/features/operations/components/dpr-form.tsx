@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import type { FormEvent, ChangeEvent } from "react";
+import type { FormEvent } from "react";
 import { Button, Input, Select, Textarea } from "@/components/ui";
 import { toApiError } from "@/services";
 import { DPR_WEATHER_OPTIONS } from "../constants";

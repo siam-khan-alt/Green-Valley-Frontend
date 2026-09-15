@@ -9,6 +9,9 @@ import "@/features/contractors/services/contractors.mock";
 import "@/features/procurement/services/procurement.mock";
 import "@/features/labor/services/labor.mock";
 import "@/features/machinery/services/machinery.mock";
+import "@/features/operations/services/dpr.mock";
+import "@/features/quality/services/inspections.mock";
+import "@/features/billing/services/billing.mock";
 
 registerMock("get", "/meta", async () => ({
   status: 200,
