@@ -92,7 +92,7 @@ Legend: ✅ done · 🔨 in progress · ⬜ pending
 | 20 | **Profitability + Simulation** | ✅ |
 | 21 | **Reports** | ✅ |
 | 22 | **Users & Roles** | ✅ |
-| 23 | **Audit Log** | ⬜ |
+| 23 | **Audit Log** | ✅ |
 
 ## 5. Build order (dependency-driven)
 
