@@ -5,7 +5,7 @@ import type { Contractor, ContractorPayload } from "../types";
 export const contractorsApi = {
   async list(): Promise<Contractor[]> {
     try {
-      return await api.get<Contractor[]>("/api/v1/contractors/");
+      return await api.get<Contractor[]>("/contractors");
     } catch (error) {
       throw toApiError(error as AxiosError);
     }
@@ -13,7 +13,7 @@ export const contractorsApi = {
 
   async create(payload: ContractorPayload): Promise<Contractor> {
     try {
-      return await api.post<Contractor>("/api/v1/contractors/", payload);
+      return await api.post<Contractor>("/contractors", payload);
     } catch (error) {
       throw toApiError(error as AxiosError);
     }
@@ -21,7 +21,7 @@ export const contractorsApi = {
 
   async update(id: string, patch: Partial<ContractorPayload>): Promise<Contractor> {
     try {
-      return await api.patch<Contractor>(`/api/v1/contractors/${id}/`, patch);
+      return await api.patch<Contractor>(`/contractors/${id}`, patch);
     } catch (error) {
       throw toApiError(error as AxiosError);
     }
@@ -29,7 +29,7 @@ export const contractorsApi = {
 
   async remove(id: string): Promise<void> {
     try {
-      await api.del(`/api/v1/contractors/${id}/`);
+      await api.del(`/contractors/${id}`);
     } catch (error) {
       throw toApiError(error as AxiosError);
     }

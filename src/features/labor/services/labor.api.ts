@@ -5,7 +5,7 @@ import type { MusterEntry, MusterPayload } from "../types";
 export const laborApi = {
   async list(projectId: string): Promise<MusterEntry[]> {
     try {
-      return await api.get<MusterEntry[]>(`/api/v1/projects/${projectId}/muster/`);
+      return await api.get<MusterEntry[]>(`/projects/${projectId}/muster`);
     } catch (error) {
       throw toApiError(error as AxiosError);
     }
@@ -14,7 +14,7 @@ export const laborApi = {
   async create(projectId: string, payload: MusterPayload): Promise<MusterEntry> {
     try {
       return await api.post<MusterEntry>(
-        `/api/v1/projects/${projectId}/muster/`,
+        `/projects/${projectId}/muster`,
         payload
       );
     } catch (error) {

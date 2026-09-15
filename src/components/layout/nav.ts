@@ -2,6 +2,8 @@ export const ORG_NAME = "Green Valley";
 export const ORG_SUBTITLE = "Developers";
 
 export type NavItem = {
+  /** unique within the whole sidebar; required when several items share an href */
+  id: string;
   label: string;
   href: string;
   icon?: string;
@@ -50,39 +52,39 @@ export const NAV_GROUPS: NavGroup[] = [
   {
     label: "Overview",
     items: [
-      { label: "Dashboard", href: "/dashboard", icon: ICONS.dashboard, match: ["/"] },
-      { label: "Projects", href: "/projects", icon: ICONS.projects },
-      { label: "Reports", href: "/reports", icon: ICONS.reports },
+      { label: "Dashboard", id: "dashboard", href: "/dashboard", icon: ICONS.dashboard, match: ["/"] },
+      { label: "Projects", id: "projects", href: "/projects", icon: ICONS.projects },
+      { label: "Reports", id: "reports", href: "/reports", icon: ICONS.reports },
     ],
   },
   {
     label: "Catalog",
     items: [
-      { label: "Materials", href: "/materials", icon: ICONS.materials },
-      { label: "Suppliers", href: "/suppliers", icon: ICONS.suppliers },
-      { label: "Contractors", href: "/contractors", icon: ICONS.contractors },
+      { label: "Materials", id: "materials", href: "/materials", icon: ICONS.materials },
+      { label: "Suppliers", id: "suppliers", href: "/suppliers", icon: ICONS.suppliers },
+      { label: "Contractors", id: "contractors", href: "/contractors", icon: ICONS.contractors },
     ],
   },
   {
     label: "Site & Billing",
     items: [
-      { label: "Operations (DPR)", href: "/projects", icon: ICONS.operations },
-      { label: "Inspections", href: "/projects", icon: ICONS.quality },
-      { label: "Billing", href: "/projects", icon: ICONS.billing },
-      { label: "Variations", href: "/projects", icon: ICONS.variations },
-      { label: "Expenses", href: "/projects", icon: ICONS.expenses },
-      { label: "Profitability", href: "/projects", icon: ICONS.profitability },
+      { label: "Operations (DPR)", id: "operations", href: "/projects", icon: ICONS.operations },
+      { label: "Inspections", id: "inspections", href: "/projects", icon: ICONS.quality },
+      { label: "Billing", id: "billing", href: "/projects", icon: ICONS.billing },
+      { label: "Variations", id: "variations", href: "/projects", icon: ICONS.variations },
+      { label: "Expenses", id: "expenses", href: "/projects", icon: ICONS.expenses },
+      { label: "Profitability", id: "profitability", href: "/projects", icon: ICONS.profitability },
     ],
   },
   {
     label: "Admin",
     items: [
-      { label: "Users & Roles", href: "/users", icon: ICONS.users },
-      { label: "Audit Log", href: "/audit-log", icon: ICONS.audit },
+      { label: "Users & Roles", id: "users", href: "/users", icon: ICONS.users },
+      { label: "Audit Log", id: "audit-log", href: "/audit-log", icon: ICONS.audit },
     ],
   },
   {
     label: "Design System",
-    items: [{ label: "UI Kit", href: "/ui-kit", icon: ICONS.kit }],
+    items: [{ label: "UI Kit", id: "ui-kit", href: "/ui-kit", icon: ICONS.kit }],
   },
 ];

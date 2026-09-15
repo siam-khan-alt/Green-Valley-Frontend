@@ -14,7 +14,7 @@ import type {
 export const procurementApi = {
   async indents(projectId: string): Promise<Indent[]> {
     try {
-      return await api.get<Indent[]>(`/api/v1/projects/${projectId}/indents/`);
+      return await api.get<Indent[]>(`/projects/${projectId}/indents`);
     } catch (error) {
       throw toApiError(error as AxiosError);
     }
@@ -22,7 +22,7 @@ export const procurementApi = {
 
   async createIndent(projectId: string, payload: IndentPayload): Promise<Indent> {
     try {
-      return await api.post<Indent>(`/api/v1/projects/${projectId}/indents/`, payload);
+      return await api.post<Indent>(`/projects/${projectId}/indents`, payload);
     } catch (error) {
       throw toApiError(error as AxiosError);
     }
@@ -33,7 +33,7 @@ export const procurementApi = {
     patch: Partial<IndentPayload> & { status?: IndentStatus }
   ): Promise<Indent> {
     try {
-      return await api.patch<Indent>(`/api/v1/indents/${id}/`, patch);
+      return await api.patch<Indent>(`/indents/${id}`, patch);
     } catch (error) {
       throw toApiError(error as AxiosError);
     }
@@ -45,7 +45,7 @@ export const procurementApi = {
   ): Promise<PurchaseOrder> {
     try {
       return await api.post<PurchaseOrder>(
-        `/api/v1/indents/${indentId}/create-po/`,
+        `/indents/${indentId}/create-po`,
         payload
       );
     } catch (error) {
@@ -56,7 +56,7 @@ export const procurementApi = {
   async purchaseOrders(projectId: string): Promise<PurchaseOrder[]> {
     try {
       return await api.get<PurchaseOrder[]>(
-        `/api/v1/projects/${projectId}/purchase-orders/`
+        `/projects/${projectId}/purchase-orders`
       );
     } catch (error) {
       throw toApiError(error as AxiosError);
@@ -66,7 +66,7 @@ export const procurementApi = {
   async createPurchaseOrder(projectId: string, payload: PoPayload): Promise<PurchaseOrder> {
     try {
       return await api.post<PurchaseOrder>(
-        `/api/v1/projects/${projectId}/purchase-orders/`,
+        `/projects/${projectId}/purchase-orders`,
         payload
       );
     } catch (error) {
@@ -79,7 +79,7 @@ export const procurementApi = {
     patch: Partial<PoPayload> & { status?: PoStatus }
   ): Promise<PurchaseOrder> {
     try {
-      return await api.patch<PurchaseOrder>(`/api/v1/purchase-orders/${id}/`, patch);
+      return await api.patch<PurchaseOrder>(`/purchase-orders/${id}`, patch);
     } catch (error) {
       throw toApiError(error as AxiosError);
     }
@@ -88,7 +88,7 @@ export const procurementApi = {
   async createGoodsReceipt(poId: string, payload: GrnPayload): Promise<GoodsReceipt> {
     try {
       return await api.post<GoodsReceipt>(
-        `/api/v1/purchase-orders/${poId}/goods-receipts/`,
+        `/purchase-orders/${poId}/goods-receipts`,
         payload
       );
     } catch (error) {
@@ -99,7 +99,7 @@ export const procurementApi = {
   async goodsReceipts(projectId: string): Promise<GoodsReceipt[]> {
     try {
       return await api.get<GoodsReceipt[]>(
-        `/api/v1/projects/${projectId}/goods-receipts/`
+        `/projects/${projectId}/goods-receipts`
       );
     } catch (error) {
       throw toApiError(error as AxiosError);

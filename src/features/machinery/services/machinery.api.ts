@@ -10,7 +10,7 @@ import type {
 export const machineryApi = {
   async listMachinery(): Promise<Machinery[]> {
     try {
-      return await api.get<Machinery[]>("/api/v1/machinery/");
+      return await api.get<Machinery[]>("/machinery");
     } catch (error) {
       throw toApiError(error as AxiosError);
     }
@@ -18,7 +18,7 @@ export const machineryApi = {
 
   async createMachinery(payload: MachineryPayload): Promise<Machinery> {
     try {
-      return await api.post<Machinery>("/api/v1/machinery/", payload);
+      return await api.post<Machinery>("/machinery", payload);
     } catch (error) {
       throw toApiError(error as AxiosError);
     }
@@ -26,7 +26,7 @@ export const machineryApi = {
 
   async updateMachinery(id: string, patch: Partial<MachineryPayload>): Promise<Machinery> {
     try {
-      return await api.patch<Machinery>(`/api/v1/machinery/${id}/`, patch);
+      return await api.patch<Machinery>(`/machinery/${id}`, patch);
     } catch (error) {
       throw toApiError(error as AxiosError);
     }
@@ -34,7 +34,7 @@ export const machineryApi = {
 
   async removeMachinery(id: string): Promise<void> {
     try {
-      await api.del(`/api/v1/machinery/${id}/`);
+      await api.del(`/machinery/${id}`);
     } catch (error) {
       throw toApiError(error as AxiosError);
     }
@@ -43,7 +43,7 @@ export const machineryApi = {
   async listUsage(projectId: string): Promise<MachineryUsage[]> {
     try {
       return await api.get<MachineryUsage[]>(
-        `/api/v1/projects/${projectId}/machinery-usage/`
+        `/projects/${projectId}/machinery-usage`
       );
     } catch (error) {
       throw toApiError(error as AxiosError);
@@ -56,7 +56,7 @@ export const machineryApi = {
   ): Promise<MachineryUsage> {
     try {
       return await api.post<MachineryUsage>(
-        `/api/v1/projects/${projectId}/machinery-usage/`,
+        `/projects/${projectId}/machinery-usage`,
         payload
       );
     } catch (error) {

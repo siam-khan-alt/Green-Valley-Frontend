@@ -40,7 +40,7 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
                   item.match?.includes(pathname) ||
                   (item.href !== "/" && pathname.startsWith(`${item.href}/`));
                 return (
-                  <li key={item.href}>
+                  <li key={item.id}>
                     <Link
                       href={item.href}
                       onClick={onNavigate}

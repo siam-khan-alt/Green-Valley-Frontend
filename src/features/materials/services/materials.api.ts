@@ -5,7 +5,7 @@ import type { Material, MaterialPayload } from "../types";
 export const materialsApi = {
   async list(): Promise<Material[]> {
     try {
-      return await api.get<Material[]>("/api/v1/materials/");
+      return await api.get<Material[]>("/materials");
     } catch (error) {
       throw toApiError(error as AxiosError);
     }
@@ -13,7 +13,7 @@ export const materialsApi = {
 
   async create(payload: MaterialPayload): Promise<Material> {
     try {
-      return await api.post<Material>("/api/v1/materials/", payload);
+      return await api.post<Material>("/materials", payload);
     } catch (error) {
       throw toApiError(error as AxiosError);
     }
@@ -21,7 +21,7 @@ export const materialsApi = {
 
   async update(id: string, patch: Partial<MaterialPayload>): Promise<Material> {
     try {
-      return await api.patch<Material>(`/api/v1/materials/${id}/`, patch);
+      return await api.patch<Material>(`/materials/${id}`, patch);
     } catch (error) {
       throw toApiError(error as AxiosError);
     }
@@ -29,7 +29,7 @@ export const materialsApi = {
 
   async remove(id: string): Promise<void> {
     try {
-      await api.del(`/api/v1/materials/${id}/`);
+      await api.del(`/materials/${id}`);
     } catch (error) {
       throw toApiError(error as AxiosError);
     }
