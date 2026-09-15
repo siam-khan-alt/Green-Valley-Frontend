@@ -68,10 +68,12 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
             <ul className="flex flex-col gap-0.5">
               {group.items.map((item) => {
                 const href = resolveHref(item, activeProjectId);
+                const placeholder = Boolean(item.projectPath) && !activeProjectId;
                 const active =
-                  pathname === href ||
-                  item.match?.includes(pathname) ||
-                  (href !== "/" && pathname.startsWith(`${href}/`));
+                  !placeholder &&
+                  (pathname === href ||
+                    item.match?.includes(pathname) ||
+                    (href !== "/" && pathname.startsWith(`${href}/`)));
                 return (
                   <li key={item.id}>
                     <Link
