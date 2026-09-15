@@ -21,6 +21,7 @@ const SEGMENT_LABELS: Record<string, string> = {
   billing: "Billing",
   variations: "Variations",
   expenses: "Expenses",
+  profitability: "Profitability",
   reports: "Reports",
 };
 
