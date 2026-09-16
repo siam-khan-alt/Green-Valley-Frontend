@@ -1,14 +1,16 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
 import {
   Button,
   Card,
   EmptyState,
   ErrorState,
+  Input,
   Modal,
   Pagination,
+  Select,
   SkeletonRows,
   Table,
   TableBody,
@@ -18,8 +20,10 @@ import {
   ThCell,
   useToast,
 } from "@/components/ui";
+import { PageHeader } from "@/components/shared/PageHeader";
 import { roleSlug, useAuth } from "@/features/auth";
 import {
+  PROJECT_STATUS_OPTIONS,
   PROJECT_WRITE_ROLES,
   ProjectForm,
   ProjectStatusBadge,
@@ -29,6 +33,7 @@ import {
 } from "@/features/projects";
 import type { ProjectPayload } from "@/features/projects";
 import { formatCurrency } from "@/lib/format";
+import { exportCsv, formatDateForFile } from "@/lib/csv";
 
 const PAGE_SIZE = 6;
 
@@ -39,14 +44,34 @@ export default function ProjectsPage() {
   const toast = useToast();
 
   const [page, setPage] = useState(1);
+  const [status, setStatus] = useState("");
+  const [search, setSearch] = useState("");
   const [createOpen, setCreateOpen] = useState(false);
 
-  const projectsQuery = useProjects({ page, page_size: PAGE_SIZE });
+  const projectsQuery = useProjects({
+    page,
+    page_size: PAGE_SIZE,
+    status: status || undefined,
+  });
   const createProject = useCreateProject();
 
   const totalPages = projectsQuery.data
     ? Math.max(1, Math.ceil(projectsQuery.data.count / PAGE_SIZE))
     : 1;
+
+  const visibleProjects = useMemo(() => {
+    const results = projectsQuery.data?.results ?? [];
+    const q = search.trim().toLowerCase();
+    if (!q) return results;
+    return results.filter((p) =>
+      [p.name, p.location, p.id].some((field) => field.toLowerCase().includes(q))
+    );
+  }, [projectsQuery.data, search]);
+
+  function handleStatusChange(next: string) {
+    setStatus(next);
+    setPage(1);
+  }
 
   async function handleCreate(payload: ProjectPayload) {
     await createProject.mutateAsync(payload);
@@ -58,17 +83,67 @@ export default function ProjectsPage() {
     });
   }
 
+  function handleExport() {
+    exportCsv({
+      filename: `projects-${formatDateForFile(new Date())}`,
+      headers: ["Project", "Type", "Location", "Status", "Budget"],
+      rows: visibleProjects.map((p) => [
+        p.name,
+        p.type,
+        p.location,
+        p.status,
+        p.budget,
+      ]),
+    });
+  }
+
   return (
     <main className="mx-auto w-full max-w-5xl">
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-bold text-text">Projects</h1>
-          <p className="mt-1 text-sm text-text-muted">
-            Portfolio overview — budget, cost, forecast & expected profit.
-          </p>
-        </div>
-        {canWrite && (
-          <Button onClick={() => setCreateOpen(true)}>New project</Button>
+      <PageHeader
+        title="Projects"
+        description="Portfolio overview — budget, cost, forecast & expected profit."
+        actions={
+          <>
+            <Input
+              placeholder="Search…"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-48 lg:w-56"
+            />
+            <Button variant="outline" onClick={handleExport}>
+              Export CSV
+            </Button>
+            {canWrite && <Button onClick={() => setCreateOpen(true)}>New project</Button>}
+          </>
+        }
+      />
+
+      <div className="mt-4 flex items-end gap-3">
+        <Select
+          label="Status"
+          value={status}
+          onChange={(e) => handleStatusChange(e.target.value)}
+          className="w-44"
+        >
+          <option value="">All</option>
+          {PROJECT_STATUS_OPTIONS.map((opt) => (
+            <option key={opt.value} value={opt.value}>
+              {opt.label}
+            </option>
+          ))}
+        </Select>
+        {(status !== "" || search.trim() !== "") && (
+          <button
+            type="button"
+            onClick={() => {
+              setStatus("");
+              setSearch("");
+              setPage(1);
+            }}
+            className="mb-0 h-10 border border-border rounded-md px-3 text-sm font-medium text-primary transition-colors hover:bg-primary-soft"
+          >
+            Clear
+          </button>
         )}
       </div>
 
@@ -85,10 +160,14 @@ export default function ProjectsPage() {
             description={projectsQuery.error.message}
             retry={<Button variant="outline" onClick={() => projectsQuery.refetch()}>Retry</Button>}
           />
-        ) : projectsQuery.data.results.length === 0 ? (
+        ) : visibleProjects.length === 0 ? (
           <EmptyState
             title="No projects yet"
-            description="Create your first project to start tracking cost, progress and profitability."
+            description={
+              status || search.trim()
+                ? "No projects match your filters. Try clearing them for a broader view."
+                : "Create your first project to start tracking cost, progress and profitability."
+            }
             action={
               canWrite ? (
                 <Button onClick={() => setCreateOpen(true)}>Create project</Button>
@@ -109,7 +188,7 @@ export default function ProjectsPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {projectsQuery.data.results.map((project) => (
+                {visibleProjects.map((project) => (
                   <TableRow key={project.id}>
                     <TdCell>
                       <Link

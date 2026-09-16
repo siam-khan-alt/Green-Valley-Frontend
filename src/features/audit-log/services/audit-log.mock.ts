@@ -2,6 +2,23 @@ import { registerMock } from "@/services/mock/adapter";
 import { DEMO_USERS } from "@/features/auth/services/auth.mock";
 import type { AuditEntry, AuditLogQuery, AuditTargetType } from "../types";
 
+export function recordAction(entry: {
+  action: string;
+  target_type: AuditTargetType;
+  target_id: string;
+  metadata?: Record<string, string>;
+  user: string;
+  user_email: string;
+}) {
+  const id = `aud_${String(store.length + 1).padStart(3, "0")}`;
+  store.push({
+    ...entry,
+    metadata: entry.metadata ?? {},
+    id,
+    timestamp: new Date().toISOString(),
+  });
+}
+
 interface AuditSeed {
   user_index: number;
   action: string;

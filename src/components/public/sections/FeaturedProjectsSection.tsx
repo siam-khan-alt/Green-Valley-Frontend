@@ -55,7 +55,7 @@ function ProjectCard({
           {project.status}
         </span>
         <h3 className="mt-2 text-xl font-bold text-white">{project.name}</h3>
-        <p className="text-sm text-gray-200">{project.location} &middot; {project.type}</p>
+        <p className="text-sm text-white/80">{project.location} &middot; {project.type}</p>
       </div>
     </Link>
   );

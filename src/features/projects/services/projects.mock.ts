@@ -165,13 +165,14 @@ function validate(
   return fields;
 }
 
-async function listProjects(page: number, page_size: number) {
+async function listProjects(page: number, page_size: number, status?: string) {
+  const filtered = status ? store.filter((p) => p.status === status) : store;
   const start = (page - 1) * page_size;
-  const results = store.slice(start, start + page_size).map(toSummary);
+  const results = filtered.slice(start, start + page_size).map(toSummary);
   return wait({
-    count: store.length,
+    count: filtered.length,
     next:
-      start + page_size < store.length
+      start + page_size < filtered.length
         ? `/api/v1/projects/?page=${page + 1}&page_size=${page_size}`
         : null,
     previous: page > 1 ? `/api/v1/projects/?page=${page - 1}&page_size=${page_size}` : null,
@@ -238,10 +239,11 @@ async function deleteProject(id: string) {
 }
 
 registerMock("get", "/projects", async (config) => {
-  const params = (config.params ?? {}) as { page?: string; page_size?: string };
+  const params = (config.params ?? {}) as { page?: string; page_size?: string; status?: string };
   const page = Number(params.page ?? 1);
   const page_size = Number(params.page_size ?? 10);
-  const data = await listProjects(page, page_size);
+  const status = params.status || undefined;
+  const data = await listProjects(page, page_size, status);
   return { status: 200, data };
 });
 

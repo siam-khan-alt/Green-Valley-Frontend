@@ -11,8 +11,8 @@ const buttonVariants = {
   ghost: "bg-transparent text-text hover:bg-surface-muted",
   outline:
     "bg-transparent text-primary border border-primary hover:bg-primary-soft",
-  danger: "bg-danger text-white hover:opacity-90",
-  success: "bg-success text-white hover:opacity-90",
+  danger: "bg-danger text-danger-foreground hover:opacity-90",
+  success: "bg-success text-success-foreground hover:opacity-90",
 } as const;
 
 const buttonSizes = {

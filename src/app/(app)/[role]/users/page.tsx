@@ -1,18 +1,20 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import {
   Badge,
   Button,
   Card,
   EmptyState,
   ErrorState,
+  Input,
   LoadingState,
   Modal,
   Select,
   useToast,
 } from "@/components/ui";
-import { RequireRole } from "@/features/auth";
+import { PageHeader } from "@/components/shared/PageHeader";
+import { RequireRole, ROLES } from "@/features/auth";
 import {
   USER_ROLE_LABELS,
   USER_ROLE_OPTIONS,
@@ -22,7 +24,8 @@ import {
   useUsers,
 } from "@/features/users";
 import type { User, UserPayload } from "@/features/users";
-import { ROLES } from "@/features/auth";
+import { exportCsv, formatDateForFile } from "@/lib/csv";
+import { useCrud } from "@/hooks/use-crud";
 
 function RoleBadge({ role }: { role: User["role"] }) {
   const variant =
@@ -40,12 +43,23 @@ function RoleBadge({ role }: { role: User["role"] }) {
 
 function UsersContent() {
   const toast = useToast();
+  const crud = useCrud<User>({ resource: "user" });
   const usersQuery = useUsers();
   const createUser = useCreateUser();
   const updateUser = useUpdateUser();
 
-  const [createOpen, setCreateOpen] = useState(false);
+  const [search, setSearch] = useState("");
   const [lastEditError, setLastEditError] = useState<{ id: string; message: string } | null>(null);
+
+  const users = useMemo(() => usersQuery.data ?? [], [usersQuery.data]);
+
+  const visibleUsers = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    if (!q) return users;
+    return users.filter((u) =>
+      [u.name, u.email, u.id].some((field) => field.toLowerCase().includes(q))
+    );
+  }, [users, search]);
 
   if (usersQuery.isPending) {
     return <LoadingState label="Loading users…" />;
@@ -61,12 +75,23 @@ function UsersContent() {
     );
   }
 
-  const users = usersQuery.data ?? [];
+  function handleExport() {
+    exportCsv({
+      filename: `users-${formatDateForFile(new Date())}`,
+      headers: ["Name", "Email", "Role", "Status"],
+      rows: visibleUsers.map((u) => [
+        u.name,
+        u.email,
+        USER_ROLE_LABELS[u.role],
+        u.is_active ? "Active" : "Inactive",
+      ]),
+    });
+  }
 
   async function handleCreate(payload: UserPayload) {
     await createUser.mutateAsync(payload);
     toast({ title: "User created", variant: "success" });
-    setCreateOpen(false);
+    crud.setFormOpen(false);
   }
 
   async function handleChangeRole(id: string, role: User["role"]) {
@@ -96,15 +121,24 @@ function UsersContent() {
 
   return (
     <main className="mx-auto w-full max-w-5xl">
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-bold text-text">Users & Roles</h1>
-          <p className="mt-1 text-sm text-text-muted">
-            Manage organization members, their roles and access status.
-          </p>
-        </div>
-        <Button onClick={() => setCreateOpen(true)}>New user</Button>
-      </div>
+      <PageHeader
+        title="Users & Roles"
+        description="Manage organization members, their roles and access status."
+        actions={
+          <>
+            <Input
+              placeholder="Search…"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-48 lg:w-56"
+            />
+            <Button variant="outline" onClick={handleExport}>
+              Export CSV
+            </Button>
+            <Button onClick={() => crud.startCreate()}>New user</Button>
+          </>
+        }
+      />
 
       <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
         {USER_ROLE_OPTIONS.map((r) => {
@@ -124,7 +158,7 @@ function UsersContent() {
           <EmptyState
             title="No users"
             description="Create the first user to start managing access."
-            action={<Button onClick={() => setCreateOpen(true)}>New user</Button>}
+            action={<Button onClick={() => crud.startCreate()}>New user</Button>}
           />
         ) : (
           <div className="overflow-x-auto rounded-lg border border-border">
@@ -139,7 +173,7 @@ function UsersContent() {
                 </tr>
               </thead>
               <tbody>
-                {users.map((user) => {
+                {visibleUsers.map((user) => {
                   const editError = lastEditError?.id === user.id;
                   return (
                     <tr
@@ -204,14 +238,14 @@ function UsersContent() {
       </p>
 
       <Modal
-        open={createOpen}
-        onClose={() => setCreateOpen(false)}
+        open={crud.formOpen}
+        onClose={() => crud.setFormOpen(false)}
         title="New user"
         subtitle="Create an organization account with a role and initial status."
         size="lg"
       >
         <UserForm
-          onCancel={() => setCreateOpen(false)}
+          onCancel={() => crud.setFormOpen(false)}
           onSubmit={handleCreate}
         />
       </Modal>

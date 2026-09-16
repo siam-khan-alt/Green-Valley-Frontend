@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { notFound } from "next/navigation";
 import {
   Badge,
   Button,
@@ -26,6 +27,7 @@ import {
   ThCell,
   useToast,
 } from "@/components/ui";
+import { ACCENTS, AccentDot, useAccent } from "@/components/layout/palette-toggle";
 
 const section = "mt-10 flex flex-col gap-3";
 const h2 = "text-lg font-semibold text-text";
@@ -39,12 +41,70 @@ const statuses = [
   { label: "Not started", variant: "neutral" as const },
 ];
 
+/** Token name → the utility the UI kit shows for it. The resolved value is read
+ * live from the CSS variable named `--<token>`, so selecting a theme below (or
+ * toggling dark mode) updates both the swatch and its hex right here. */
+const TOKENS: Array<[string, string]> = [
+  ["background", "bg-background"],
+  ["surface", "bg-surface"],
+  ["surface-muted", "bg-surface-muted"],
+  ["border", "bg-border"],
+  ["text", "bg-text"],
+  ["text-muted", "bg-text-muted"],
+  ["primary", "bg-primary"],
+  ["primary-soft", "bg-primary-soft"],
+  ["success", "bg-success"],
+  ["warning", "bg-warning"],
+  ["danger", "bg-danger"],
+  ["info", "bg-info"],
+  ["success-foreground", "bg-success-foreground"],
+  ["danger-foreground", "bg-danger-foreground"],
+  ["rating", "bg-rating"],
+];
+
+function ColorTokenGrid() {
+  const [values, setValues] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    function read() {
+      const cs = getComputedStyle(document.documentElement);
+      const next: Record<string, string> = {};
+      for (const [name] of TOKENS) {
+        const v = cs.getPropertyValue(`--${name}`).trim();
+        if (v) next[name] = v;
+      }
+      setValues(next);
+    }
+    read();
+    const observer = new MutationObserver(read);
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["class", "data-accent"],
+    });
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+      {TOKENS.map(([name, cls]) => (
+        <div key={name} className="rounded-md border border-border bg-surface p-2">
+          <div className={`h-10 rounded-md border border-border/40 ${cls}`} />
+          <p className="mt-1.5 truncate text-xs font-medium text-text">{name}</p>
+          <p className="font-mono text-[10px] text-text-muted">{values[name] ?? "—"}</p>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export default function UIKitPage() {
+  if (process.env.NODE_ENV === "production") notFound();
   return <UIKitShowcase />;
 }
 
 function UIKitShowcase() {
   const toast = useToast();
+  const [accent, apply] = useAccent();
   const [modalOpen, setModalOpen] = useState(false);
   const [page, setPage] = useState(1);
   const [demoError, setDemoError] = useState<string | undefined>(undefined);
@@ -72,29 +132,69 @@ function UIKitShowcase() {
 
       <section className={section}>
         <h2 className={h2}>Color tokens</h2>
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-          {[
-            ["background", "bg-background"],
-            ["surface", "bg-surface"],
-            ["surface-muted", "bg-surface-muted"],
-            ["border", "bg-border"],
-            ["text", "bg-text"],
-            ["text-muted", "bg-text-muted"],
-            ["primary", "bg-primary"],
-            ["primary-soft", "bg-primary-soft"],
-            ["success", "bg-success"],
-            ["warning", "bg-warning"],
-            ["danger", "bg-danger"],
-            ["info", "bg-info"],
-          ].map(([name, cls]) => (
-            <div
-              key={name}
-              className="rounded-md border border-border bg-surface p-2"
-            >
-              <div className={`h-10 rounded-md border border-border/40 ${cls}`} />
-              <p className="mt-1.5 text-xs font-medium text-text">{name}</p>
-            </div>
-          ))}
+        <p className="text-sm text-text-muted">
+          Live values — update the moment you select a theme below or toggle dark
+          mode.
+        </p>
+        <ColorTokenGrid />
+      </section>
+
+      <section className={section}>
+        <h2 className={h2}>Color themes</h2>
+<p className="text-sm text-text-muted">
+          Six full templates — 60/30/10 rule: neutrals, surfaces, borders, brand and
+          status colors all reskin together per template, in light &amp; dark mode.
+        </p>
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {ACCENTS.map((a) => {
+            const active = accent === a.id;
+            return (
+              <Card key={a.id} className="overflow-hidden">
+                <div
+                  className="flex h-16 items-end gap-2 px-4 pb-2"
+                  style={{
+                    background: `linear-gradient(135deg, ${a.soft}, ${a.primary})`,
+                  }}
+                >
+                  {active && <Badge variant="primary">Active</Badge>}
+                </div>
+                <CardBody className="flex flex-col gap-3">
+                  <div>
+                    <p className="text-sm font-semibold text-text">{a.label}</p>
+                    <p className="font-mono text-xs text-text-muted">
+                      data-accent=&quot;{a.id}&quot;
+                    </p>
+                  </div>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span
+                      className="inline-flex items-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-medium"
+                      style={{ backgroundColor: a.soft, color: a.primary }}
+                    >
+                      <AccentDot accented={a} /> Primary pair
+                    </span>
+                    <Button
+                      size="sm"
+                      disabled={active}
+                      style={{ backgroundColor: a.primary, color: "#ffffff" }}
+                      onClick={() => {
+                        apply(a.id);
+                        toast({
+                          title: `${a.label} theme applied`,
+                          description: "Brand colors now use this palette in light & dark mode.",
+                          variant: "success",
+                        });
+                      }}
+                    >
+                      {active ? "Active theme" : "Use this theme"}
+                    </Button>
+                  </div>
+                  <p className="font-mono text-[10px] text-text-muted">
+                    primary {a.primary} · soft {a.soft}
+                  </p>
+                </CardBody>
+              </Card>
+            );
+          })}
         </div>
       </section>
 

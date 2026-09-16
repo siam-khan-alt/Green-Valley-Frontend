@@ -8,10 +8,12 @@ import {
   ErrorState,
   LoadingState,
 } from "@/components/ui";
+import { PageHeader } from "@/components/shared/PageHeader";
 import {
   usePortfolioReport,
 } from "@/features/reports";
 import { formatCurrency, formatPercent, formatNumber } from "@/lib/format";
+import { exportCsv, formatDateForFile } from "@/lib/csv";
 
 function PctBar({ value }: { value: number }) {
   const pct = Math.min(100, Math.max(0, value));
@@ -45,14 +47,31 @@ export default function ReportsPage() {
   const totalMargin =
     report.total_budget > 0 ? (report.total_expected_profit / report.total_budget) * 100 : 0;
 
+  function handleExport() {
+    exportCsv({
+      filename: `portfolio-report-${formatDateForFile(new Date())}`,
+      headers: ["Project", "Status", "Budget", "Actual cost", "Forecast cost", "Expected profit", "Progress"],
+      rows: report.projects.map((p) => [
+        p.name,
+        p.status,
+        p.budget,
+        p.actual_cost,
+        p.forecast_final_cost,
+        p.expected_profit,
+        `${formatNumber(p.progress_pct)}%`,
+      ]),
+    });
+  }
+
   return (
     <main className="mx-auto w-full max-w-6xl">
-      <div>
-        <h1 className="text-2xl font-bold text-text">Portfolio Report</h1>
-        <p className="mt-1 text-sm text-text-muted">
-          Aggregate budget vs actual and profitability across all projects
-        </p>
-      </div>
+      <PageHeader
+        title="Portfolio Report"
+        description="Aggregate budget vs actual and profitability across all projects"
+        actions={
+          <Button variant="outline" onClick={handleExport}>Export CSV</Button>
+        }
+      />
 
       <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Card className="p-4">

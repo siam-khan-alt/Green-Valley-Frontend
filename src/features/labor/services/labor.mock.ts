@@ -64,3 +64,12 @@ registerMock("post", "/projects/{id}/muster", async (config, params) => {
   muster = [...muster, entry];
   return wait({ status: 201, data: entry });
 });
+
+registerMock("delete", "/muster/{id}", async (_config, params) => {
+  const index = muster.findIndex((m) => m.id === params.id);
+  if (index === -1) {
+    return { status: 404, data: { detail: "Muster entry not found." } };
+  }
+  muster = muster.filter((m) => m.id !== params.id);
+  return wait({ status: 204, data: null });
+});

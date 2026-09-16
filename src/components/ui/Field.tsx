@@ -1,6 +1,7 @@
 "use client";
 
 import type { ComponentProps, ReactNode } from "react";
+import { useId } from "react";
 import { cn } from "@/lib/cn";
 
 export type FieldError = string | string[] | undefined;
@@ -70,12 +71,14 @@ export function Input({
   className,
   ...props
 }: InputProps) {
+  const autoId = useId();
   const errorMessage = resolveError(error);
+  const fieldId = id ?? autoId;
   return (
     <div className="flex w-full flex-col">
-      <FieldLabel id={id} label={label} required={required} />
+      <FieldLabel id={fieldId} label={label} required={required} />
       <input
-        id={id}
+        id={fieldId}
         required={required}
         aria-invalid={!!errorMessage}
         className={cn(
@@ -109,12 +112,14 @@ export function Textarea({
   className,
   ...props
 }: TextareaProps) {
+  const autoId = useId();
   const errorMessage = resolveError(error);
+  const fieldId = id ?? autoId;
   return (
     <div className="flex w-full flex-col">
-      <FieldLabel id={id} label={label} required={required} />
+      <FieldLabel id={fieldId} label={label} required={required} />
       <textarea
-        id={id}
+        id={fieldId}
         required={required}
         aria-invalid={!!errorMessage}
         className={cn(
@@ -150,13 +155,15 @@ export function Select({
   children,
   ...props
 }: SelectProps) {
+  const autoId = useId();
   const errorMessage = resolveError(error);
+  const fieldId = id ?? autoId;
   return (
     <div className="flex w-full flex-col">
-      <FieldLabel id={id} label={label} required={required} />
+      <FieldLabel id={fieldId} label={label} required={required} />
       <div className="relative">
         <select
-          id={id}
+          id={fieldId}
           required={required}
           aria-invalid={!!errorMessage}
           className={cn(

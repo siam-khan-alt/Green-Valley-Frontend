@@ -8,4 +8,5 @@ export const scheduleApi = {
     api.post<Milestone>(`/projects/${projectId}/milestones`, payload),
   update: (id: string, payload: Partial<MilestonePayload>) =>
     api.patch<Milestone>(`/milestones/${id}`, payload),
+  delete: (id: string) => api.del<void>(`/milestones/${id}`),
 };

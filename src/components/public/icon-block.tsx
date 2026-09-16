@@ -41,7 +41,7 @@ export function IconBlock({ icon, label }: IconProps) {
   const d = iconPaths[icon] || iconPaths.home;
   return (
     <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary-soft text-primary">
-      <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" aria-hidden="true">
+      <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" role="img" aria-label={label}>
         <path d={d} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
       </svg>
     </div>

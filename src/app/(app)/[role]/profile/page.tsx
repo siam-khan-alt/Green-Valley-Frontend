@@ -5,7 +5,7 @@ import type { FormEvent } from "react";
 import { Badge, Button, Card, CardBody, CardHeader, Input, useToast } from "@/components/ui";
 import type { BadgeVariant } from "@/components/ui";
 import { ROLES, useAuth } from "@/features/auth";
-import { toApiError } from "@/services";
+import { toErrorMessage } from "@/services";
 import { cn } from "@/lib/cn";
 
 function initials(name: string) {
@@ -15,12 +15,6 @@ function initials(name: string) {
     .slice(0, 2)
     .join("")
     .toUpperCase();
-}
-
-function toErrorMessage(error: unknown): string {
-  const api = toApiError(error);
-  const entries = Object.values(api.fields ?? {});
-  return api.message || (entries.length ? String(entries[0]) : (error instanceof Error ? error.message : "Something went wrong."));
 }
 
 export default function ProfilePage() {

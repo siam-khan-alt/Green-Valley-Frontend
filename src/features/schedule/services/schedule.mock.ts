@@ -132,3 +132,12 @@ registerMock("patch", "/milestones/{id}", async (config, params) => {
   store = store.map((m) => (m.id === params.id ? updated : m));
   return wait({ status: 200, data: updated });
 });
+
+registerMock("delete", "/milestones/{id}", async (_config, params) => {
+  const index = store.findIndex((m) => m.id === params.id);
+  if (index === -1) {
+    return { status: 404, data: { detail: "Milestone not found." } };
+  }
+  store = store.filter((m) => m.id !== params.id);
+  return wait({ status: 204, data: null });
+});

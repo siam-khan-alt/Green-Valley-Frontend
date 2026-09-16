@@ -105,6 +105,15 @@ function extractMessage(error: unknown): string {
   return toApiError(error).message;
 }
 
+/** Human-readable message incl. field errors, e.g. for form submit toasts. */
+export function toErrorMessage(error: unknown): string {
+  const apiError = toApiError(error);
+  const fieldMessages = Object.values(apiError.fields ?? {}).flat();
+  return fieldMessages.length > 0
+    ? fieldMessages.join("; ")
+    : apiError.message || "Something went wrong.";
+}
+
 async function request<T>(config: AxiosRequestConfig): Promise<T> {
   const response = await http.request<T>(config);
   return response.data;

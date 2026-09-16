@@ -30,7 +30,9 @@ import {
   useUpdatePayment,
 } from "@/features/expenses";
 import type { Expense, ExpensePayload, Payment, PaymentPayload } from "@/features/expenses";
+import { PageHeader } from "@/components/shared/PageHeader";
 import { formatCurrency, formatDate } from "@/lib/format";
+import { exportCsv, formatDateForFile } from "@/lib/csv";
 
 const PAYMENT_METHOD_LABEL: Record<string, string> = {
   bank_transfer: "Bank transfer",
@@ -147,14 +149,29 @@ export default function ExpensesPage() {
     setDeletingPayment(null);
   }
 
+  function handleExport() {
+    if (activeTab === "payments") {
+      exportCsv({
+        filename: `payments-${id}-${formatDateForFile(new Date())}`,
+        headers: ["Payee", "Method", "Date", "Amount"],
+        rows: payments.map((p) => [p.payee, PAYMENT_METHOD_LABEL[p.method] ?? p.method, p.date, p.amount]),
+      });
+    } else {
+      exportCsv({
+        filename: `expenses-${id}-${formatDateForFile(new Date())}`,
+        headers: ["Date", "Category", "Description", "Amount", "Purchase order"],
+        rows: expenses.map((e) => [e.date, EXPENSE_CATEGORY_META[e.category].label, e.description, e.amount, e.purchase_order ?? ""]),
+      });
+    }
+  }
+
   return (
     <main className="mx-auto w-full max-w-6xl">
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-bold text-text">Expenses & Payments</h1>
-          <p className="mt-1 text-sm text-text-muted">{project.name}</p>
-        </div>
-      </div>
+      <PageHeader
+        title="Expenses & Payments"
+        description={project.name}
+        actions={<Button variant="outline" onClick={handleExport}>Export CSV</Button>}
+      />
 
       <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Card className="p-4">

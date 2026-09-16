@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import {
   Badge,
   Button,
@@ -11,20 +11,41 @@ import {
   LoadingState,
   Select,
 } from "@/components/ui";
+import { PageHeader } from "@/components/shared/PageHeader";
 import { RequireRole } from "@/features/auth";
 import {
   AUDIT_TARGET_BADGE,
   AUDIT_TARGET_OPTIONS,
   useAuditLog,
 } from "@/features/audit-log";
-import type { AuditLogQuery, AuditTargetType } from "@/features/audit-log";
+import type { AuditEntry, AuditLogQuery, AuditTargetType } from "@/features/audit-log";
 import { useUsers } from "@/features/users";
 import { formatDate } from "@/lib/format";
+import { exportCsv, formatDateForFile } from "@/lib/csv";
 
 function AuditLogContent() {
   const [filters, setFilters] = useState<AuditLogQuery>({});
+  const [search, setSearch] = useState("");
   const auditQuery = useAuditLog(filters);
   const usersQuery = useUsers();
+
+  const entries = useMemo(() => auditQuery.data ?? [], [auditQuery.data]);
+
+  const visibleEntries = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    if (!q) return entries;
+    return entries.filter((entry) => {
+      const details = Object.entries(entry.metadata).map(([k, v]) => `${k} ${v}`).join(" ");
+      return [
+        entry.user,
+        entry.user_email,
+        entry.action,
+        entry.target_type,
+        entry.target_id,
+        details,
+      ].some((field) => field.toLowerCase().includes(q));
+    });
+  }, [entries, search]);
 
   const hasFilters = !!(filters.user || filters.target_type || filters.date);
 
@@ -53,17 +74,43 @@ function AuditLogContent() {
     );
   }
 
-  const entries = auditQuery.data ?? [];
   const users = usersQuery.data ?? [];
+
+  function handleExport() {
+    exportCsv({
+      filename: `audit-log-${formatDateForFile(new Date())}`,
+      headers: ["When", "User", "Action", "Target", "Details"],
+      rows: visibleEntries.map((entry: AuditEntry) => [
+        entry.timestamp,
+        `${entry.user} (${entry.user_email})`,
+        entry.action,
+        `${entry.target_type} (${entry.target_id})`,
+        Object.entries(entry.metadata)
+          .map(([k, v]) => `${k}: ${v}`)
+          .join("; "),
+      ]),
+    });
+  }
 
   return (
     <main className="mx-auto w-full max-w-6xl">
-      <div>
-        <h1 className="text-2xl font-bold text-text">Audit Log</h1>
-        <p className="mt-1 text-sm text-text-muted">
-          Chronological record of who changed what across the organization.
-        </p>
-      </div>
+      <PageHeader
+        title="Audit Log"
+        description="Chronological record of who changed what across the organization."
+        actions={
+          <>
+            <Input
+              placeholder="Search…"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-48 lg:w-56"
+            />
+            <Button variant="outline" onClick={handleExport}>
+              Export CSV
+            </Button>
+          </>
+        }
+      />
 
       <Card className="mt-6 p-4">
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -110,12 +157,12 @@ function AuditLogContent() {
       </Card>
 
       <div className="mt-4 text-sm text-text-muted">
-        {entries.length} {entries.length === 1 ? "entry" : "entries"}
+        {visibleEntries.length} {visibleEntries.length === 1 ? "entry" : "entries"}
         {hasFilters ? " matching filters" : ""}
       </div>
 
       <div className="mt-2">
-        {entries.length === 0 ? (
+        {visibleEntries.length === 0 ? (
           <EmptyState
             title="No audit entries"
             description={hasFilters ? "Try clearing the filters for a broader view." : "Actions will be recorded here as they happen."}
@@ -133,7 +180,7 @@ function AuditLogContent() {
                 </tr>
               </thead>
               <tbody>
-                {entries.map((entry) => (
+                {visibleEntries.map((entry) => (
                   <tr key={entry.id} className="border-b border-border/60 last:border-b-0 align-top">
                     <td className="px-4 py-2 whitespace-nowrap">
                       <span className="text-text">{formatDate(entry.timestamp)}</span>

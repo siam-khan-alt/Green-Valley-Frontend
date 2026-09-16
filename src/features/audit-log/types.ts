@@ -9,7 +9,10 @@ export type AuditTargetType =
   | "variation"
   | "expense"
   | "payment"
-  | "user";
+  | "user"
+  | "material"
+  | "supplier"
+  | "contractor";
 
 export interface AuditEntry {
   id: string;

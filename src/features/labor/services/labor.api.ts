@@ -13,10 +13,15 @@ export const laborApi = {
 
   async create(projectId: string, payload: MusterPayload): Promise<MusterEntry> {
     try {
-      return await api.post<MusterEntry>(
-        `/projects/${projectId}/muster`,
-        payload
-      );
+      return await api.post<MusterEntry>(`/projects/${projectId}/muster`, payload);
+    } catch (error) {
+      throw toApiError(error as AxiosError);
+    }
+  },
+
+  async delete(id: string): Promise<void> {
+    try {
+      await api.del<void>(`/muster/${id}`);
     } catch (error) {
       throw toApiError(error as AxiosError);
     }

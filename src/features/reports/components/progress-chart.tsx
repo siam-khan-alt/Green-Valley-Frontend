@@ -42,11 +42,11 @@ export function ProgressChart({
                 x2={width - pad.right}
                 y1={y}
                 y2={y}
-                stroke="#d9d6cf"
+                className="stroke-border"
                 strokeDasharray="3 3"
                 strokeWidth="1"
               />
-              <text x={pad.left - 6} y={y + 3} textAnchor="end" fontSize="10" fill="#9b968f">
+              <text x={pad.left - 6} y={y + 3} textAnchor="end" fontSize="10" className="fill-text-muted">
                 {Math.round(value)}%
               </text>
             </g>
@@ -55,20 +55,20 @@ export function ProgressChart({
         <polyline
           points={costPoints}
           fill="none"
-          stroke="#1971c2"
+          className="stroke-info"
           strokeWidth="2"
           strokeDasharray="5 3"
         />
-        <polyline points={pctPoints} fill="none" stroke="#2f9e44" strokeWidth="2.5" />
+        <polyline points={pctPoints} fill="none" className="stroke-success" strokeWidth="2.5" />
         {series.map((p, i) => (
           <g key={p.date}>
-            <circle cx={x(i)} cy={yPct(p.percent_complete)} r="3" fill="#2f9e44" />
+            <circle cx={x(i)} cy={yPct(p.percent_complete)} r="3" className="fill-success" />
             <text
               x={x(i)}
               y={height - 8}
               textAnchor={i === 0 ? "start" : i === series.length - 1 ? "end" : "middle"}
               fontSize="10"
-              fill="#9b968f"
+              className="fill-text-muted"
             >
               {p.date.slice(0, 7)}
             </text>
@@ -81,7 +81,7 @@ export function ProgressChart({
           Progress %
         </span>
         <span className="inline-flex items-center gap-1.5">
-          <span className="inline-block h-0.5 w-4 rounded bg-info" style={{ background: "#1971c2" }} />
+          <span className="inline-block h-0.5 w-4 rounded bg-info" />
           Cost (৳)
         </span>
       </div>

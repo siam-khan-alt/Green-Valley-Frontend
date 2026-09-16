@@ -9,6 +9,7 @@ import {
   LoadingState,
   Modal,
 } from "@/components/ui";
+import { PageHeader } from "@/components/shared/PageHeader";
 import { useAuth } from "@/features/auth";
 import { useProject } from "@/features/projects";
 import {
@@ -20,6 +21,7 @@ import {
 } from "@/features/profitability";
 import type { SimulationInput, SimulationResult } from "@/features/profitability";
 import { formatCurrency, formatPercent, formatNumber } from "@/lib/format";
+import { exportCsv, formatDateForFile } from "@/lib/csv";
 
 function CostBar({
   actual,
@@ -79,6 +81,19 @@ export default function ProfitabilityPage() {
 
   const profitPct = data.budget > 0 ? (data.expected_profit / data.budget) * 100 : 0;
 
+  function handleExport() {
+    exportCsv({
+      filename: `profitability-${id}-${formatDateForFile(new Date())}`,
+      headers: ["Category", "Budget", "Actual", "% Used"],
+      rows: data.cost_breakdown.map((c) => [
+        COST_CATEGORY_LABELS[c.category] ?? c.category,
+        c.budget,
+        c.actual,
+        `${c.budget > 0 ? Math.round((c.actual / c.budget) * 100) : 0}%`,
+      ]),
+    });
+  }
+
   async function handleSimulate(input: SimulationInput) {
     const result = await simulate.mutateAsync(input);
     setSimulateResult(result);
@@ -91,17 +106,18 @@ export default function ProfitabilityPage() {
 
   return (
     <main className="mx-auto w-full max-w-6xl">
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-bold text-text">Profitability</h1>
-          <p className="mt-1 text-sm text-text-muted">
-            {project.name} — budget, forecast & what-if simulation
-          </p>
-        </div>
-        {canSimulate && (
-          <Button onClick={() => setSimulateOpen(true)}>Run simulation</Button>
-        )}
-      </div>
+      <PageHeader
+        title="Profitability"
+        description={`${project.name} — budget, forecast & what-if simulation`}
+        actions={
+          <>
+            <Button variant="outline" onClick={handleExport}>Export CSV</Button>
+            {canSimulate && (
+              <Button onClick={() => setSimulateOpen(true)}>Run simulation</Button>
+            )}
+          </>
+        }
+      />
 
       <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Card className="p-4">

@@ -13,6 +13,9 @@ export const AUDIT_TARGET_OPTIONS: { value: AuditTargetType; label: string }[] =
   { value: "expense", label: "Expense" },
   { value: "payment", label: "Payment" },
   { value: "user", label: "User" },
+  { value: "material", label: "Material" },
+  { value: "supplier", label: "Supplier" },
+  { value: "contractor", label: "Contractor" },
 ];
 
 export const AUDIT_TARGET_BADGE: Record<AuditTargetType, BadgeVariant> = {
@@ -27,4 +30,7 @@ export const AUDIT_TARGET_BADGE: Record<AuditTargetType, BadgeVariant> = {
   expense: "warning",
   payment: "success",
   user: "neutral",
+  material: "info",
+  supplier: "neutral",
+  contractor: "neutral",
 };

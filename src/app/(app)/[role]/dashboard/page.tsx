@@ -18,6 +18,7 @@ import {
 } from "@/features/auth";
 import type { Role } from "@/features/auth";
 import { cn } from "@/lib/cn";
+import { usePendingApprovals } from "@/hooks/use-pending-approvals";
 
 function firstName(name: string) {
   return name.split(" ")[0];
@@ -128,6 +129,8 @@ export default function DashboardPage() {
         ))}
       </div>
 
+      <PendingApprovals slug={slug} />
+
       <div className="mt-8">
         <h2 className="text-lg font-semibold text-text">Your modules</h2>
         <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
@@ -184,5 +187,49 @@ export default function DashboardPage() {
         </Card>
       </div>
     </main>
+  );
+}
+
+const TYPE_META: Record<string, { label: string; variant: "warning" | "info" | "primary" }> = {
+  indent: { label: "Indent", variant: "warning" },
+  ra_bill: { label: "RA Bill", variant: "info" },
+  variation: { label: "Variation", variant: "primary" },
+};
+
+function PendingApprovals({ slug }: { slug: string }) {
+  const { items, isPending, isError } = usePendingApprovals();
+
+  if (isPending || isError || items.length === 0) return null;
+
+  return (
+    <div className="mt-6">
+      <div className="flex items-center justify-between">
+        <h2 className="text-lg font-semibold text-text">
+          Awaiting your approval
+          <Badge variant="warning" className="ml-2">{items.length}</Badge>
+        </h2>
+      </div>
+      <div className="mt-3 space-y-2">
+        {items.map((item) => {
+          const meta = TYPE_META[item.type];
+          return (
+            <Link
+              key={`${item.type}-${item.id}`}
+              href={`/${slug}/${item.url}`}
+              className="flex items-center justify-between gap-3 rounded-xl border border-border bg-surface p-3 transition-colors hover:shadow-sm"
+            >
+              <div className="flex items-center gap-3 min-w-0">
+                <Badge variant={meta.variant}>{meta.label}</Badge>
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-medium text-text">{item.label}</p>
+                  <p className="text-xs text-text-muted">{item.projectName}</p>
+                </div>
+              </div>
+              <span className="shrink-0 text-xs font-medium text-primary">Review →</span>
+            </Link>
+          );
+        })}
+      </div>
+    </div>
   );
 }

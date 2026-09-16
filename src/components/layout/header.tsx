@@ -5,6 +5,7 @@ import { Button, Dropdown } from "@/components/ui";
 import { ROLES, roleSlug, useAuth } from "@/features/auth";
 import { Breadcrumbs } from "./breadcrumbs";
 import { IconMenu } from "./icons";
+import { PaletteToggle } from "./palette-toggle";
 import { ThemeToggle } from "./theme-toggle";
 
 function initials(name: string) {
@@ -43,6 +44,7 @@ export function Header({ onMenuClick }: { onMenuClick: () => void }) {
       </div>
 
       <div className="flex items-center gap-1.5">
+        <PaletteToggle />
         <ThemeToggle />
         <Dropdown
           label="Account menu"

@@ -41,7 +41,8 @@ export function Pagination({
             <span key={p} className="flex items-center gap-1">
               {gap && <span className="px-1 text-sm text-text-muted">…</span>}
               <PageButton active={p === page} onClick={() => onPageChange(p)}>
-                {p}
+                <span aria-hidden>{p}</span>
+                <span className="sr-only">Page {p}</span>
               </PageButton>
             </span>
           );

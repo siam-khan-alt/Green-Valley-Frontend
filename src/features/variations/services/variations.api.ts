@@ -12,4 +12,5 @@ export const variationsApi = {
     api.post<Variation>(`/projects/${projectId}/variations`, payload),
   update: (id: string, patch: VariationPatch) =>
     api.patch<Variation>(`/variations/${id}`, patch),
+  delete: (id: string) => api.del<void>(`/variations/${id}`),
 };

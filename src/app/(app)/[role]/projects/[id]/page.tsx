@@ -69,7 +69,7 @@ export default function ProjectDetailPage() {
       description: "Project removed from the portfolio.",
       variant: "success",
     });
-    router.replace("/${slug}/projects");
+    router.replace(`/${slug}/projects`);
   }
 
   if (projectQuery.isPending) {
@@ -267,7 +267,7 @@ export default function ProjectDetailPage() {
       </Modal>
 
       <p className="mt-6 text-sm text-text-muted">
-        <Link href="/${slug}/projects" className="font-medium text-primary transition-colors hover:text-primary-hover">
+        <Link href={`/${slug}/projects`} className="font-medium text-primary transition-colors hover:text-primary-hover">
           ← Back to projects
         </Link>
       </p>

@@ -32,6 +32,21 @@
   --danger: #dc2626;
   --info: #2563eb;
 
+  /* button foregrounds (dark mode needs dark text on light fills) */
+  --success-foreground: #ffffff;
+  --danger-foreground: #ffffff;
+
+  /* rating stars (testimonials) */
+  --rating: #eab308;
+
+  /* categorical chart series — constant across light/dark so the same
+     data reads consistently on any surface */
+  --chart-1: #2f9e44;
+  --chart-2: #1971c2;
+  --chart-3: #e8590c;
+  --chart-4: #6741d9;
+  --chart-5: #868e96;
+
   /* radius scale */
   --radius-sm: 6px;
   --radius-md: 10px;
@@ -57,6 +72,89 @@
   --warning: #fbbf24;
   --danger: #f87171;
   --info: #60a5fa;
+
+  --success-foreground: #062a16;
+  --danger-foreground: #36030a;
+  --rating: #fbbf24;
+}
+
+/* ────────────────────────────────────────────────────────────
+ * Color templates — full, bespoke reskin. Nothing is constant:
+ * the 60/30/10 rule shifts neutrals, surfaces, borders, brand AND
+ * status/semantic colors together per template (light + dark).
+ *   60 % base(s)  → background / surface / surface-muted
+ *   30 % secondary→ border / muted text
+ *   10 % accent   → primary / primary-hover / primary-soft
+ * Status (success/warning/danger/info/rating) and chart hues are
+ * re-tuned per template so no color carries over from another theme.
+ * Applied via <html data-accent="sky"> etc. (see PaletteToggle).
+ * "forest" is the default — the :root / .dark blocks above ARE it.
+ * ──────────────────────────────────────────────────────────── */
+:root[data-accent="sky"] {
+  --background: #f4f8fb; --surface: #ffffff; --surface-muted: #e8f0f6;
+  --border: #d7e2ec; --text: #15202b; --text-muted: #4f6375;
+  --primary: #0369a1; --primary-hover: #075985; --primary-soft: #dbeafe;
+  --success: #0d9488; --warning: #d97706; --danger: #e11d48; --info: #0369a1; --rating: #f0b429;
+  --chart-1: #0d9488; --chart-2: #0b7cc0; --chart-3: #e8590c; --chart-4: #5b6fd0; --chart-5: #7d8794;
+}
+:root[data-accent="violet"] {
+  --background: #f7f5fb; --surface: #ffffff; --surface-muted: #eeeaf6;
+  --border: #ddd7ea; --text: #1e1a2e; --text-muted: #5f5870;
+  --primary: #6d28d9; --primary-hover: #5b21b6; --primary-soft: #ede9fe;
+  --success: #14805f; --warning: #b8861f; --danger: #c2255c; --info: #5a4fd0; --rating: #dfa70c;
+  --chart-1: #14805f; --chart-2: #5a4fd0; --chart-3: #b23c2e; --chart-4: #8a5bd6; --chart-5: #868096;
+}
+:root[data-accent="amber"] {
+  --background: #faf7f2; --surface: #ffffff; --surface-muted: #f3ede3;
+  --border: #e7dccb; --text: #2a2118; --text-muted: #6b5f50;
+  --primary: #c2410c; --primary-hover: #9a3412; --primary-soft: #ffedd5;
+  --success: #4b8b2f; --warning: #9c6d05; --danger: #cf3a2f; --info: #1f7fb8; --rating: #eab308;
+  --chart-1: #4b8b2f; --chart-2: #1f7fb8; --chart-3: #d25f2a; --chart-4: #8a6dd0; --chart-5: #a8906a;
+}
+:root[data-accent="slate"] {
+  --background: #f6f8fa; --surface: #ffffff; --surface-muted: #eaeef3;
+  --border: #d9e0e8; --text: #1a2430; --text-muted: #535f6d;
+  --primary: #334155; --primary-hover: #1e293b; --primary-soft: #e2e8f0;
+  --success: #3f8f5f; --warning: #a8881f; --danger: #c24545; --info: #4a6fa5; --rating: #b8902a;
+  --chart-1: #3f8f5f; --chart-2: #4a6fa5; --chart-3: #b06a3a; --chart-4: #6d61a8; --chart-5: #6b7280;
+}
+:root[data-accent="rose"] {
+  --background: #fbf5f7; --surface: #ffffff; --surface-muted: #f6eaed;
+  --border: #ead7dd; --text: #2a1820; --text-muted: #6d5460;
+  --primary: #be123c; --primary-hover: #9f1239; --primary-soft: #ffe4e6;
+  --success: #0c9d6c; --warning: #c98c1f; --danger: #e6396f; --info: #3b82c4; --rating: #e6b400;
+  --chart-1: #0c9d6c; --chart-2: #3b82c4; --chart-3: #e76f51; --chart-4: #9a64d4; --chart-5: #b0898f;
+}
+
+.dark[data-accent="sky"] {
+  --background: #0c1218; --surface: #10181f; --surface-muted: #16202a;
+  --border: #243140; --text: #e7eef5; --text-muted: #8ba0b4;
+  --primary: #38bdf8; --primary-hover: #7dd3fc; --primary-soft: #0c4a6e; --primary-foreground: #082f49;
+  --success: #2dd4bf; --success-foreground: #06332b; --warning: #f59e0b; --danger: #fb7185; --danger-foreground: #3c0514; --info: #43c3f5; --rating: #fbbf24;
+}
+.dark[data-accent="violet"] {
+  --background: #120f1a; --surface: #171323; --surface-muted: #1e1930;
+  --border: #302a47; --text: #ece9f5; --text-muted: #9d94bc;
+  --primary: #a78bfa; --primary-hover: #c4b5fd; --primary-soft: #3b0764; --primary-foreground: #1e1b4b;
+  --success: #5fd08f; --success-foreground: #04371f; --warning: #e8c336; --danger: #f091b0; --danger-foreground: #4c0a26; --info: #a78bfa; --rating: #eec63d;
+}
+.dark[data-accent="amber"] {
+  --background: #170f08; --surface: #1c130b; --surface-muted: #251a10;
+  --border: #3a2c1d; --text: #f5ecdf; --text-muted: #b0a08a;
+  --primary: #fbbf24; --primary-hover: #fcd34d; --primary-soft: #451a03; --primary-foreground: #431407;
+  --success: #7fce6b; --success-foreground: #123006; --warning: #ffd233; --danger: #ff8f6b; --danger-foreground: #4a0d02; --info: #6fc4f0; --rating: #f5c64d;
+}
+.dark[data-accent="slate"] {
+  --background: #0c1016; --surface: #11161d; --surface-muted: #171e27;
+  --border: #26313d; --text: #e6ebf1; --text-muted: #8b97a6;
+  --primary: #94a3b8; --primary-hover: #cbd5e1; --primary-soft: #1e293b; --primary-foreground: #0f172a;
+  --success: #78c796; --success-foreground: #0c2f1c; --warning: #d3b149; --danger: #e39d9d; --danger-foreground: #3f1010; --info: #7fa8dd; --rating: #c9a83d;
+}
+.dark[data-accent="rose"] {
+  --background: #170b10; --surface: #1d1016; --surface-muted: #261820;
+  --border: #3a2430; --text: #f5eaee; --text-muted: #b2919e;
+  --primary: #fb7185; --primary-hover: #fda4af; --primary-soft: #4c0519; --primary-foreground: #3c0514;
+  --success: #63d7b0; --success-foreground: #043027; --warning: #eecb5b; --danger: #ff8fb8; --danger-foreground: #43081d; --info: #79b8ec; --rating: #f4c83e;
 }
 
 @theme inline {
@@ -77,6 +175,16 @@
   --color-warning: var(--warning);
   --color-danger: var(--danger);
   --color-info: var(--info);
+
+  --color-success-foreground: var(--success-foreground);
+  --color-danger-foreground: var(--danger-foreground);
+  --color-rating: var(--rating);
+
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
 
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);

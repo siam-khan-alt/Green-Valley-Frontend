@@ -151,3 +151,12 @@ registerMock("patch", "/variations/{id}", async (config, params) => {
   variations = variations.map((v) => (v.id === params.id ? updated : v));
   return wait({ status: 200, data: updated });
 });
+
+registerMock("delete", "/variations/{id}", async (_config, params) => {
+  const index = variations.findIndex((v) => v.id === params.id);
+  if (index === -1) {
+    return { status: 404, data: { detail: "Variation not found." } };
+  }
+  variations = variations.filter((v) => v.id !== params.id);
+  return wait({ status: 204, data: null });
+});

@@ -41,7 +41,9 @@ import type {
   RaBillPatch,
   RaBillPayload,
 } from "@/features/billing";
+import { PageHeader } from "@/components/shared/PageHeader";
 import { formatCurrency, formatDate } from "@/lib/format";
+import { exportCsv, formatDateForFile } from "@/lib/csv";
 
 export default function BillingPage() {
   const params = useParams();
@@ -162,16 +164,44 @@ export default function BillingPage() {
     setDeductionsBill(null);
   }
 
+  function handleExport() {
+    if (activeTab === "ra-bills") {
+      exportCsv({
+        filename: `ra-bills-${id}-${formatDateForFile(new Date())}`,
+        headers: ["Bill no", "Date", "Period from", "Period to", "Status", "Gross", "Net payable"],
+        rows: bills.map((b) => [
+          b.bill_no,
+          b.bill_date,
+          b.period_from,
+          b.period_to,
+          b.status,
+          b.gross_amount,
+          b.net_payable,
+        ]),
+      });
+    } else {
+      exportCsv({
+        filename: `measurements-${id}-${formatDateForFile(new Date())}`,
+        headers: ["WP code", "BOQ item", "Unit", "Quantity", "Date", "Status"],
+        rows: measurements.map((m) => [
+          m.work_package_code,
+          m.boq_item_description,
+          m.unit,
+          m.measured_quantity,
+          m.measurement_date,
+          m.status,
+        ]),
+      });
+    }
+  }
+
   return (
     <main className="mx-auto w-full max-w-6xl">
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-bold text-text">Billing</h1>
-          <p className="mt-1 text-sm text-text-muted">
-            {project.name} — Measurement Book & RA bills
-          </p>
-        </div>
-      </div>
+      <PageHeader
+        title="Billing"
+        description={`${project.name} — Measurement Book & RA bills`}
+        actions={<Button variant="outline" onClick={handleExport}>Export CSV</Button>}
+      />
 
       <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Card className="p-4">

@@ -31,3 +31,11 @@ export function useUpdateMilestone() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: milestonesKey }),
   });
 }
+
+export function useDeleteMilestone() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => scheduleApi.delete(id),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: milestonesKey }),
+  });
+}

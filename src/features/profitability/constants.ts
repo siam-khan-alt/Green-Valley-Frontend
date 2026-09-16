@@ -7,11 +7,11 @@ export const PROFITABILITY_SIMULATE_ROLES: Role[] = [
 ];
 
 export const COST_CATEGORY_COLORS: Record<string, string> = {
-  materials: "#2f9e44",
-  labor: "#1971c2",
-  contractor: "#e8590c",
-  overhead: "#6741d9",
-  other: "#868e96",
+  materials: "var(--chart-1)",
+  labor: "var(--chart-2)",
+  contractor: "var(--chart-3)",
+  overhead: "var(--chart-4)",
+  other: "var(--chart-5)",
 };
 
 export const COST_CATEGORY_LABELS: Record<string, string> = {

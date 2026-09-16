@@ -8,6 +8,7 @@ import {
   Card,
   EmptyState,
   ErrorState,
+  Input,
   LoadingState,
   Modal,
   Table,
@@ -18,10 +19,13 @@ import {
   ThCell,
   useToast,
 } from "@/components/ui";
-import { MODULE_ACCESS, RequireRole, useAuth } from "@/features/auth";
+import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
+import { PageHeader } from "@/components/shared/PageHeader";
 import { KpiCard, useProjects } from "@/features/projects";
+import { MODULE_ACCESS, RequireRole, useAuth } from "@/features/auth";
 import { workPackagesApi } from "@/features/work-packages";
 import {
+  CONTRACTOR_OPTIONS,
   CONTRACTORS_WRITE_ROLES,
   ContractorForm,
   ContractorTypeBadge,
@@ -31,6 +35,8 @@ import {
   useUpdateContractor,
 } from "@/features/contractors";
 import type { Contractor, ContractorPayload } from "@/features/contractors";
+import { exportCsv, formatDateForFile } from "@/lib/csv";
+import { useCrud } from "@/hooks/use-crud";
 
 interface Assignment {
   projectName: string;
@@ -38,10 +44,14 @@ interface Assignment {
   wpName: string;
 }
 
+const contractorTypeLabel = (type: Contractor["type"]) =>
+  CONTRACTOR_OPTIONS.find((o) => o.value === type)?.label ?? type;
+
 function ContractorsContent() {
   const { user } = useAuth();
   const toast = useToast();
   const canWrite = !!user && CONTRACTORS_WRITE_ROLES.includes(user.role);
+  const crud = useCrud<Contractor>({ resource: "contractor" });
 
   const contractorsQuery = useContractors();
   const createContractor = useCreateContractor();
@@ -61,16 +71,23 @@ function ContractorsContent() {
     })),
   });
 
-  const [formOpen, setFormOpen] = useState(false);
-  const [editing, setEditing] = useState<Contractor | null>(null);
-  const [deleting, setDeleting] = useState<Contractor | null>(null);
   const [assigning, setAssigning] = useState<Contractor | null>(null);
-  const [busy, setBusy] = useState(false);
+  const [search, setSearch] = useState("");
 
   const contractors = useMemo(
     () => contractorsQuery.data ?? [],
     [contractorsQuery.data]
   );
+
+  const visibleContractors = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    if (!q) return contractors;
+    return contractors.filter((c) =>
+      [c.name, c.contact_info, c.type, c.id].some((field) =>
+        field.toLowerCase().includes(q)
+      )
+    );
+  }, [contractors, search]);
 
   const assignments = useMemo(() => {
     const map = new Map<string, Assignment[]>();
@@ -119,43 +136,58 @@ function ContractorsContent() {
 
   const pendingAssignments = wpQueries.some((q) => q.isPending);
 
+  function handleExport() {
+    exportCsv({
+      filename: `contractors-${formatDateForFile(new Date())}`,
+      headers: ["Contractor", "Type", "Contact information", "Assigned WPs"],
+      rows: visibleContractors.map((c) => [
+        c.name,
+        contractorTypeLabel(c.type),
+        c.contact_info,
+        assignments.get(c.name)?.length ?? 0,
+      ]),
+    });
+  }
+
   async function handleSave(payload: ContractorPayload) {
-    if (editing) {
-      await updateContractor.mutateAsync({ id: editing.id, patch: payload });
+    if (crud.editing) {
+      await updateContractor.mutateAsync({ id: crud.editing.id, patch: payload });
       toast({ title: "Contractor updated", variant: "success" });
     } else {
       await createContractor.mutateAsync(payload);
       toast({ title: "Contractor added", variant: "success" });
     }
-    setFormOpen(false);
-    setEditing(null);
+    crud.setFormOpen(false);
+    crud.setEditing(null);
   }
 
-  async function handleDelete() {
-    if (!deleting) return;
-    setBusy(true);
-    try {
-      await deleteContractor.mutateAsync(deleting.id);
-      toast({ title: "Contractor removed", variant: "success" });
-      setDeleting(null);
-    } finally {
-      setBusy(false);
-    }
+  function handleDelete() {
+    void crud.confirmDelete(
+      (contractor) => deleteContractor.mutateAsync(contractor.id),
+      { successLabel: "Contractor removed." }
+    );
   }
 
   return (
     <main className="mx-auto w-full max-w-5xl">
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-bold text-text">Contractors</h1>
-          <p className="mt-1 text-sm text-text-muted">
-            Your contracting partners and their assigned work packages.
-          </p>
-        </div>
-        {canWrite && (
-          <Button onClick={() => setFormOpen(true)}>Add contractor</Button>
-        )}
-      </div>
+      <PageHeader
+        title="Contractors"
+        description="Your contracting partners and their assigned work packages."
+        actions={
+          <>
+            <Input
+              placeholder="Search…"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-48 lg:w-56"
+            />
+            <Button variant="outline" onClick={handleExport}>
+              Export CSV
+            </Button>
+            {canWrite && <Button onClick={() => crud.startCreate()}>Add contractor</Button>}
+          </>
+        }
+      />
 
       <div className="mt-6 grid gap-4 sm:grid-cols-3">
         <KpiCard label="Contractors" value={contractors.length} tone="info" />
@@ -180,7 +212,7 @@ function ContractorsContent() {
             description="Add the companies executing your work packages."
             action={
               canWrite ? (
-                <Button onClick={() => setFormOpen(true)}>Add contractor</Button>
+                <Button onClick={() => crud.startCreate()}>Add contractor</Button>
               ) : undefined
             }
           />
@@ -197,7 +229,7 @@ function ContractorsContent() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {contractors.map((contractor) => {
+                {visibleContractors.map((contractor) => {
                   const count = assignments.get(contractor.name)?.length ?? 0;
                   return (
                     <TableRow key={contractor.id}>
@@ -222,17 +254,14 @@ function ContractorsContent() {
                             <>
                               <button
                                 type="button"
-                                onClick={() => {
-                                  setEditing(contractor);
-                                  setFormOpen(true);
-                                }}
+                                onClick={() => crud.startEdit(contractor)}
                                 className="text-xs font-medium text-primary transition-colors hover:text-primary-hover"
                               >
                                 Edit
                               </button>
                               <button
                                 type="button"
-                                onClick={() => setDeleting(contractor)}
+                                onClick={() => crud.requestDelete(contractor, contractor.id)}
                                 className="text-xs font-medium text-danger transition-colors hover:text-danger-hover"
                               >
                                 Delete
@@ -251,47 +280,35 @@ function ContractorsContent() {
       </div>
 
       <Modal
-        open={formOpen}
+        open={crud.formOpen}
         onClose={() => {
-          setFormOpen(false);
-          setEditing(null);
+          crud.setFormOpen(false);
+          crud.setEditing(null);
         }}
-        title={editing ? "Edit contractor" : "Add contractor"}
+        title={crud.editing ? "Edit contractor" : "Add contractor"}
         subtitle="Used in the work package Contractor field."
         size="lg"
       >
         <ContractorForm
-          key={editing?.id ?? "new"}
-          initial={editing ?? undefined}
-          submitLabel={editing ? "Save changes" : "Add contractor"}
+          key={crud.editing?.id ?? "new"}
+          initial={crud.editing ?? undefined}
+          submitLabel={crud.editing ? "Save changes" : "Add contractor"}
           onCancel={() => {
-            setFormOpen(false);
-            setEditing(null);
+            crud.setFormOpen(false);
+            crud.setEditing(null);
           }}
           onSubmit={handleSave}
         />
       </Modal>
 
-      <Modal
-        open={deleting !== null}
-        onClose={() => setDeleting(null)}
+      <ConfirmDialog
+        open={crud.deleteTarget !== null}
+        onClose={() => crud.setDeleteTarget(null)}
+        onConfirm={handleDelete}
         title="Delete contractor"
-        subtitle="Removing a contractor from the roster."
-        size="sm"
-      >
-        <p className="text-sm text-text-muted">
-          Remove <span className="font-semibold text-text">{deleting?.name}</span> from the
-          contractor roster? Existing work package references will keep the name.
-        </p>
-        <div className="mt-5 flex justify-end gap-2">
-          <Button variant="secondary" onClick={() => setDeleting(null)}>
-            Cancel
-          </Button>
-          <Button variant="danger" loading={busy} onClick={handleDelete}>
-            Delete contractor
-          </Button>
-        </div>
-      </Modal>
+        description={`Remove ${crud.deleteTarget?.name} from the contractor roster? Existing work package references will keep the name.`}
+        busy={crud.busy}
+      />
 
       <Modal
         open={assigning !== null}

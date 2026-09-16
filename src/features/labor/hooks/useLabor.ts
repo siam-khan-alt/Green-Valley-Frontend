@@ -22,3 +22,11 @@ export function useCreateMusterEntry() {
     onSuccess: () => void client.invalidateQueries({ queryKey: musterKey }),
   });
 }
+
+export function useDeleteMusterEntry() {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => laborApi.delete(id),
+    onSuccess: () => void client.invalidateQueries({ queryKey: musterKey }),
+  });
+}

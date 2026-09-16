@@ -50,7 +50,7 @@ export default function OperationsPage() {
   const [activeTab, setActiveTab] = useState("feed");
   const projectId = id;
 
-  const dprs = dprQuery.data ?? [];
+  const dprs = useMemo(() => dprQuery.data ?? [], [dprQuery.data]);
 
   const summary = useMemo(
     () => {

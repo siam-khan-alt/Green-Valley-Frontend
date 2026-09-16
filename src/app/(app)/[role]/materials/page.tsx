@@ -6,6 +6,7 @@ import {
   Card,
   EmptyState,
   ErrorState,
+  Input,
   LoadingState,
   Modal,
   Table,
@@ -16,8 +17,10 @@ import {
   ThCell,
   useToast,
 } from "@/components/ui";
+import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
+import { PageHeader } from "@/components/shared/PageHeader";
+import { KpiCard } from "@/components/shared/kpi-card";
 import { MODULE_ACCESS, RequireRole, useAuth } from "@/features/auth";
-import { KpiCard } from "@/features/projects";
 import {
   MATERIALS_WRITE_ROLES,
   MATERIAL_UNITS,
@@ -29,6 +32,8 @@ import {
 } from "@/features/materials";
 import type { Material, MaterialPayload } from "@/features/materials";
 import { formatCurrency } from "@/lib/format";
+import { exportCsv, formatDateForFile } from "@/lib/csv";
+import { useCrud } from "@/hooks/use-crud";
 
 const unitLabel = (unit: string) =>
   MATERIAL_UNITS.find((u) => u.value === unit)?.label ?? unit;
@@ -37,18 +42,24 @@ function MaterialsContent() {
   const { user } = useAuth();
   const toast = useToast();
   const canWrite = !!user && MATERIALS_WRITE_ROLES.includes(user.role);
+  const crud = useCrud<Material>({ resource: "material" });
 
   const materialsQuery = useMaterials();
   const createMaterial = useCreateMaterial();
   const updateMaterial = useUpdateMaterial();
   const deleteMaterial = useDeleteMaterial();
 
-  const [formOpen, setFormOpen] = useState(false);
-  const [editing, setEditing] = useState<Material | null>(null);
-  const [deleting, setDeleting] = useState<Material | null>(null);
-  const [busy, setBusy] = useState(false);
+  const [search, setSearch] = useState("");
 
   const materials = useMemo(() => materialsQuery.data ?? [], [materialsQuery.data]);
+
+  const visibleMaterials = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    if (!q) return materials;
+    return materials.filter((m) =>
+      [m.name, m.unit, m.id].some((field) => field.toLowerCase().includes(q))
+    );
+  }, [materials, search]);
 
   const avgRate = useMemo(() => {
     if (materials.length === 0) return 0;
@@ -87,43 +98,53 @@ function MaterialsContent() {
     );
   }
 
+  function handleExport() {
+    exportCsv({
+      filename: `materials-${formatDateForFile(new Date())}`,
+      headers: ["Material", "Unit", "Default rate"],
+      rows: visibleMaterials.map((m) => [m.name, unitLabel(m.unit), m.default_rate]),
+    });
+  }
+
   async function handleSave(payload: MaterialPayload) {
-    if (editing) {
-      await updateMaterial.mutateAsync({ id: editing.id, patch: payload });
+    if (crud.editing) {
+      await updateMaterial.mutateAsync({ id: crud.editing.id, patch: payload });
       toast({ title: "Material updated", variant: "success" });
     } else {
       await createMaterial.mutateAsync(payload);
       toast({ title: "Material added", variant: "success" });
     }
-    setFormOpen(false);
-    setEditing(null);
+    crud.setFormOpen(false);
+    crud.setEditing(null);
   }
 
-  async function handleDelete() {
-    if (!deleting) return;
-    setBusy(true);
-    try {
-      await deleteMaterial.mutateAsync(deleting.id);
-      toast({ title: "Material removed", variant: "success" });
-      setDeleting(null);
-    } finally {
-      setBusy(false);
-    }
+  function handleDelete() {
+    void crud.confirmDelete(
+      (material) => deleteMaterial.mutateAsync(material.id),
+      { successLabel: "Material removed." }
+    );
   }
 
   return (
     <main className="mx-auto w-full max-w-5xl">
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-bold text-text">Materials</h1>
-          <p className="mt-1 text-sm text-text-muted">
-            Shared catalog of construction materials with default rates.
-          </p>
-        </div>
-        {canWrite && (
-          <Button onClick={() => setFormOpen(true)}>Add material</Button>
-        )}
-      </div>
+      <PageHeader
+        title="Materials"
+        description="Shared catalog of construction materials with default rates."
+        actions={
+          <>
+            <Input
+              placeholder="Search…"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-48 lg:w-56"
+            />
+            <Button variant="outline" onClick={handleExport}>
+              Export CSV
+            </Button>
+            {canWrite && <Button onClick={() => crud.startCreate()}>Add material</Button>}
+          </>
+        }
+      />
 
       <div className="mt-6 grid gap-4 sm:grid-cols-3">
         <KpiCard label="Materials in catalog" value={materials.length} tone="info" />
@@ -143,7 +164,7 @@ function MaterialsContent() {
             description="Add the materials you buy regularly so BOQ and indent rates can be sourced."
             action={
               canWrite ? (
-                <Button onClick={() => setFormOpen(true)}>Add material</Button>
+                <Button onClick={() => crud.startCreate()}>Add material</Button>
               ) : undefined
             }
           />
@@ -159,7 +180,7 @@ function MaterialsContent() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {materials.map((material) => (
+                {visibleMaterials.map((material) => (
                   <TableRow key={material.id}>
                     <TdCell className="font-medium text-text">{material.name}</TdCell>
                     <TdCell className="text-text-muted">
@@ -173,17 +194,14 @@ function MaterialsContent() {
                         <div className="flex justify-end gap-2">
                           <button
                             type="button"
-                            onClick={() => {
-                              setEditing(material);
-                              setFormOpen(true);
-                            }}
+                            onClick={() => crud.startEdit(material)}
                             className="text-xs font-medium text-primary transition-colors hover:text-primary-hover"
                           >
                             Edit
                           </button>
                           <button
                             type="button"
-                            onClick={() => setDeleting(material)}
+                            onClick={() => crud.requestDelete(material, material.id)}
                             className="text-xs font-medium text-danger transition-colors hover:text-danger-hover"
                           >
                             Delete
@@ -200,47 +218,35 @@ function MaterialsContent() {
       </div>
 
       <Modal
-        open={formOpen}
+        open={crud.formOpen}
         onClose={() => {
-          setFormOpen(false);
-          setEditing(null);
+          crud.setFormOpen(false);
+          crud.setEditing(null);
         }}
-        title={editing ? "Edit material" : "Add material"}
+        title={crud.editing ? "Edit material" : "Add material"}
         subtitle="Rates are used as defaults when raising BOQ items and material indents."
         size="lg"
       >
         <MaterialForm
-          key={editing?.id ?? "new"}
-          initial={editing ?? undefined}
-          submitLabel={editing ? "Save changes" : "Add material"}
+          key={crud.editing?.id ?? "new"}
+          initial={crud.editing ?? undefined}
+          submitLabel={crud.editing ? "Save changes" : "Add material"}
           onCancel={() => {
-            setFormOpen(false);
-            setEditing(null);
+            crud.setFormOpen(false);
+            crud.setEditing(null);
           }}
           onSubmit={handleSave}
         />
       </Modal>
 
-      <Modal
-        open={deleting !== null}
-        onClose={() => setDeleting(null)}
+      <ConfirmDialog
+        open={crud.deleteTarget !== null}
+        onClose={() => crud.setDeleteTarget(null)}
+        onConfirm={handleDelete}
         title="Delete material"
-        subtitle="Removing an item from the catalog."
-        size="sm"
-      >
-        <p className="text-sm text-text-muted">
-          Remove <span className="font-semibold text-text">{deleting?.name}</span> from
-          the materials catalog? This cannot be undone.
-        </p>
-        <div className="mt-5 flex justify-end gap-2">
-          <Button variant="secondary" onClick={() => setDeleting(null)}>
-            Cancel
-          </Button>
-          <Button variant="danger" loading={busy} onClick={handleDelete}>
-            Delete material
-          </Button>
-        </div>
-      </Modal>
+        description={`Remove ${crud.deleteTarget?.name} from the materials catalog? This cannot be undone.`}
+        busy={crud.busy}
+      />
     </main>
   );
 }

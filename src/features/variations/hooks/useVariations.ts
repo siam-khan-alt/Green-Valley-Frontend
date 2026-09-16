@@ -32,3 +32,11 @@ export function useUpdateVariation(projectId: string) {
     onSuccess: () => void client.invalidateQueries({ queryKey: key(projectId) }),
   });
 }
+
+export function useDeleteVariation(projectId: string) {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => variationsApi.delete(id),
+    onSuccess: () => void client.invalidateQueries({ queryKey: key(projectId) }),
+  });
+}
