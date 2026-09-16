@@ -19,6 +19,30 @@ export const siteConfig = {
   ],
 };
 
+export const heroSlides = [
+  {
+    image: "https://images.unsplash.com/photo-1541888946425-d81bb19240f5?auto=format&fit=crop&w=1920&h=1080&q=80",
+    kicker: "Est. 2008 · Trusted by 120+ Developers",
+    title: "Build with Certainty, Deliver with Pride",
+    description:
+      "We combine rigorous cost control, transparent scheduling, and world-class craftsmanship to deliver landmark projects on time and within budget.",
+  },
+  {
+    image: "https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=1920&h=1080&q=80",
+    kicker: "Digital Cost Control",
+    title: "Budget, BOQ, and Progress in Real Time",
+    description:
+      "Every project runs on our proprietary cost-control platform — giving clients live visibility into budgets, schedules, and cash flow.",
+  },
+  {
+    image: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1920&h=1080&q=80",
+    kicker: "18+ Years of Experience",
+    title: "Turning Land into Landmarks",
+    description:
+      "Residential towers, commercial complexes, and industrial hubs — built with precision, transparency, and pride across Bangladesh.",
+  },
+];
+
 export const heroStats = [
   { value: "120+", label: "Projects Delivered" },
   { value: "2.4M+", label: "Sq Ft Completed" },
@@ -216,28 +240,32 @@ export const safetyRows = [
 
 export const team = [
   {
-    name: "Rehana Rahman",
+    name: "Mahmud Rahman",
     role: "Chief Executive Officer",
     bio: "20+ years leading complex infrastructure and real-estate development across Bangladesh. Pioneer of digital cost-control adoption.",
     imageSeed: 12,
+    image: "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=800&h=1000&q=80",
   },
   {
     name: "Sajid Hasan",
     role: "Projects Director",
     bio: "Managed 50+ high-rise and commercial projects. Expert in earned-value management and multi-stakeholder coordination.",
     imageSeed: 13,
+    image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=800&h=1000&q=80",
   },
   {
     name: "Tanvir Ahmed",
     role: "Chief Engineer",
     bio: "Structural engineer with PhD in earthquake-resistant design. Oversees all structural integrity and third-party audit compliance.",
     imageSeed: 14,
+    image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=800&h=1000&q=80",
   },
   {
-    name: "Nusrat Jahan",
+    name: "Arif Chowdhury",
     role: "Chief Financial Officer",
     bio: "Chartered accountant specializing in construction finance, tax optimization, and banking syndication for large developments.",
     imageSeed: 15,
+    image: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=800&h=1000&q=80",
   },
 ];
 

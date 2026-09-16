@@ -84,7 +84,7 @@ export default async function PublicProjectsPage({
                 href={`/projects/${p.id}`}
                 className="group flex flex-col overflow-hidden rounded-xl border border-border bg-surface transition-shadow hover:shadow-lg"
               >
-                <div className="aspect-[16/9] overflow-hidden">
+                <div className="relative aspect-[16/9] overflow-hidden">
                   <Image
                     src={`https://picsum.photos/seed/${p.id}/800/450`}
                     alt={p.name}

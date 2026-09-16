@@ -69,9 +69,9 @@ export default function PublicAboutPage() {
           <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
             {team.map((m) => (
               <div key={m.name} className="overflow-hidden rounded-xl border border-border bg-surface">
-                <div className="aspect-[3/4] overflow-hidden">
+                <div className="relative aspect-[3/4] overflow-hidden">
                   <Image
-                    src={`https://i.pravatar.cc/600?img=${m.imageSeed}`}
+                    src={m.image ?? `https://i.pravatar.cc/600?img=${m.imageSeed}`}
                     alt={m.name}
                     fill
                     sizes="(max-width: 1024px) 100vw, 25vw"

@@ -53,7 +53,7 @@ export default async function PublicProjectDetailPage({
         </Link>
 
         <div className="mt-6 overflow-hidden rounded-2xl border border-border bg-surface">
-          <div className="aspect-[21/9] overflow-hidden">
+          <div className="relative aspect-[21/9] overflow-hidden">
             <Image
               src={`https://picsum.photos/seed/${project.id}/1600/700`}
               alt={project.name}
