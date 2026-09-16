@@ -6,7 +6,11 @@ export interface AuthUser {
   name: string;
   role: Role;
   is_active: boolean;
+  title?: string;
+  phone?: string;
 }
+
+export type ProfilePatch = Partial<Pick<AuthUser, "name" | "title" | "phone">>;
 
 /** Matches API.md §2: POST /auth/login/ → { access, refresh, user } */
 export interface LoginResponse {
@@ -25,4 +29,6 @@ export interface AuthServiceImpl {
   refresh: (refreshToken: string) => Promise<{ access: string }>;
   logout: () => Promise<void>;
   me: () => Promise<AuthUser>;
+  updateProfile: (patch: ProfilePatch) => Promise<AuthUser>;
+  changePassword: (currentPassword: string, newPassword: string) => Promise<void>;
 }

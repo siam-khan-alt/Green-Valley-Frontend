@@ -29,6 +29,7 @@ const SEGMENT_LABELS: Record<string, string> = {
   profitability: "Profitability",
   reports: "Reports",
   users: "Users & Roles",
+  profile: "Profile",
   "audit-log": "Audit Log",
 };
 

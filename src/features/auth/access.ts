@@ -28,6 +28,7 @@ export const MODULE_ACCESS: Record<string, Role[]> = {
   dashboard: ALL_ROLES,
   projects: ALL_ROLES,
   reports: ALL_ROLES,
+  profile: ALL_ROLES,
   "ui-kit": ["admin"],
   materials: ["admin", "project_manager", "finance", "viewer"],
   suppliers: ["admin", "project_manager", "finance", "viewer"],

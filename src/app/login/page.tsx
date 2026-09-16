@@ -81,7 +81,7 @@ function LoginForm() {
 
           <div className="mt-6">
             <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-text-muted">
-              Demo accounts (password: password123)
+              Demo accounts — default password: password123 (change it from your Profile)
             </p>
             <div className="flex flex-col gap-1.5">
               {DEMO_USERS.map((u) => (

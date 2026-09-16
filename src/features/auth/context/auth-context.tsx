@@ -10,7 +10,7 @@ import {
 } from "react";
 import { STORAGE_KEYS } from "../constants";
 import { authMockService } from "../services/auth.mock";
-import type { AuthUser, LoginCredentials } from "../types";
+import type { AuthUser, LoginCredentials, ProfilePatch } from "../types";
 
 /* eslint-disable react-hooks/set-state-in-effect */
 
@@ -21,6 +21,8 @@ type AuthContextValue = {
   login: (credentials: LoginCredentials) => Promise<AuthUser>;
   logout: () => Promise<void>;
   refreshAccessToken: () => Promise<string>;
+  updateProfile: (patch: ProfilePatch) => Promise<AuthUser>;
+  changePassword: (currentPassword: string, newPassword: string) => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -90,6 +92,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return access;
   }, [refreshToken]);
 
+  const updateProfile = useCallback(async (patch: ProfilePatch) => {
+    const updated = await authMockService.updateProfile(patch);
+    window.localStorage.setItem(STORAGE_KEYS.user, JSON.stringify(updated));
+    setUser(updated);
+    return updated;
+  }, []);
+
+  const changePassword = useCallback(
+    async (currentPassword: string, newPassword: string) => {
+      await authMockService.changePassword(currentPassword, newPassword);
+    },
+    [],
+  );
+
   const logout = useCallback(async () => {
     await authMockService.logout();
     clear();
@@ -102,6 +118,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     login,
     logout,
     refreshAccessToken,
+    updateProfile,
+    changePassword,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
