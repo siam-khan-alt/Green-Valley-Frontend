@@ -155,7 +155,7 @@ export default function SchedulePage() {
 
       <p className="mt-5 text-sm text-text-muted">
         <Link
-          href={`/projects/${id}`}
+          href={`/dashboard/projects/${id}`}
           className="font-medium text-primary transition-colors hover:text-primary-hover"
         >
           ← Back to project

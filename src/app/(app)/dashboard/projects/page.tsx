@@ -112,7 +112,7 @@ export default function ProjectsPage() {
                   <TableRow key={project.id}>
                     <TdCell>
                       <Link
-                        href={`/projects/${project.id}`}
+                        href={`/dashboard/projects/${project.id}`}
                         className="font-semibold text-text transition-colors hover:text-primary"
                       >
                         {project.name}
@@ -126,7 +126,7 @@ export default function ProjectsPage() {
                     </TdCell>
                     <TdCell>
                       <Link
-                        href={`/projects/${project.id}`}
+                        href={`/dashboard/projects/${project.id}`}
                         className="inline-flex h-8 items-center rounded-md px-3 text-sm font-medium text-primary transition-colors hover:bg-primary-soft"
                       >
                         View

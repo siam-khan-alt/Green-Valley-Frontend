@@ -130,7 +130,7 @@ export default function WorkPackagesPage() {
                     </TdCell>
                     <TdCell>
                       <Link
-                        href={`/projects/${id}/work-packages/${wp.id}`}
+                        href={`/dashboard/projects/${id}/work-packages/${wp.id}`}
                         className="font-medium text-text transition-colors hover:text-primary"
                       >
                         {wp.name}
@@ -145,7 +145,7 @@ export default function WorkPackagesPage() {
                     </TdCell>
                     <TdCell>
                       <Link
-                        href={`/projects/${id}/work-packages/${wp.id}`}
+                        href={`/dashboard/projects/${id}/work-packages/${wp.id}`}
                         className="inline-flex h-8 items-center rounded-md px-3 text-sm font-medium text-primary transition-colors hover:bg-primary-soft"
                       >
                         Summary
@@ -161,7 +161,7 @@ export default function WorkPackagesPage() {
 
       <p className="mt-5 text-sm text-text-muted">
         <Link
-          href={`/projects/${id}`}
+          href={`/dashboard/projects/${id}`}
           className="font-medium text-primary transition-colors hover:text-primary-hover"
         >
           ← Back to project

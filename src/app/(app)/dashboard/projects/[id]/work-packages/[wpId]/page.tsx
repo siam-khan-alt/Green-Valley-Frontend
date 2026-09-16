@@ -62,7 +62,7 @@ export default function WorkPackageDetailPage() {
     await deleteWorkPackage.mutateAsync(wpId);
     setDeleteOpen(false);
     toast({ title: "Work package deleted", variant: "success" });
-    router.replace(`/projects/${projectId}/work-packages`);
+    router.replace(`/dashboard/projects/${projectId}/work-packages`);
   }
 
   if (workPackagesQuery.isPending || summaryQuery.isPending) {
@@ -220,7 +220,7 @@ export default function WorkPackageDetailPage() {
 
       <p className="mt-5 text-sm text-text-muted">
         <Link
-          href={`/projects/${projectId}/work-packages`}
+          href={`/dashboard/projects/${projectId}/work-packages`}
           className="font-medium text-primary transition-colors hover:text-primary-hover"
         >
           ← Back to work packages

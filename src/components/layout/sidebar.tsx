@@ -41,7 +41,7 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
     getActiveProjectSnapshot,
     getActiveProjectServerSnapshot,
   );
-  const pathProjectId = pathname.match(/^\/projects\/([^/]+)/)?.[1] ?? null;
+  const pathProjectId = pathname.match(/^\/dashboard\/projects\/([^/]+)/)?.[1] ?? null;
 
   useEffect(() => {
     if (pathProjectId) window.localStorage.setItem(ACTIVE_PROJECT_KEY, pathProjectId);

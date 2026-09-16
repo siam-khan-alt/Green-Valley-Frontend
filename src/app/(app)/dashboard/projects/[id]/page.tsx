@@ -68,7 +68,7 @@ export default function ProjectDetailPage() {
       description: "Project removed from the portfolio.",
       variant: "success",
     });
-    router.replace("/projects");
+    router.replace("/dashboard/projects");
   }
 
   if (projectQuery.isPending) {
@@ -122,43 +122,43 @@ export default function ProjectDetailPage() {
           <p className="mt-1 text-sm text-text-muted">{project.description}</p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <Link href={`/projects/${id}/schedule`}>
+          <Link href={`/dashboard/projects/${id}/schedule`}>
             <Button variant="outline">Schedule</Button>
           </Link>
-          <Link href={`/projects/${id}/work-packages`}>
+          <Link href={`/dashboard/projects/${id}/work-packages`}>
             <Button variant="outline">Work packages</Button>
           </Link>
-          <Link href={`/projects/${id}/boq`}>
+          <Link href={`/dashboard/projects/${id}/boq`}>
             <Button variant="outline">BOQ</Button>
           </Link>
-          <Link href={`/projects/${id}/procurement`}>
+          <Link href={`/dashboard/projects/${id}/procurement`}>
             <Button variant="outline">Procurement</Button>
           </Link>
-          <Link href={`/projects/${id}/labor`}>
+          <Link href={`/dashboard/projects/${id}/labor`}>
             <Button variant="outline">Labor</Button>
           </Link>
-          <Link href={`/projects/${id}/machinery`}>
+          <Link href={`/dashboard/projects/${id}/machinery`}>
             <Button variant="outline">Machinery</Button>
           </Link>
-          <Link href={`/projects/${id}/operations`}>
+          <Link href={`/dashboard/projects/${id}/operations`}>
             <Button variant="outline">Operations (DPR)</Button>
           </Link>
-          <Link href={`/projects/${id}/quality`}>
+          <Link href={`/dashboard/projects/${id}/quality`}>
             <Button variant="outline">Quality</Button>
           </Link>
-          <Link href={`/projects/${id}/billing`}>
+          <Link href={`/dashboard/projects/${id}/billing`}>
             <Button variant="outline">Billing</Button>
           </Link>
-          <Link href={`/projects/${id}/variations`}>
+          <Link href={`/dashboard/projects/${id}/variations`}>
             <Button variant="outline">Variations</Button>
           </Link>
-          <Link href={`/projects/${id}/expenses`}>
+          <Link href={`/dashboard/projects/${id}/expenses`}>
             <Button variant="outline">Expenses</Button>
           </Link>
-          <Link href={`/projects/${id}/profitability`}>
+          <Link href={`/dashboard/projects/${id}/profitability`}>
             <Button variant="outline">Profitability</Button>
           </Link>
-          <Link href={`/projects/${id}/reports`}>
+          <Link href={`/dashboard/projects/${id}/reports`}>
             <Button variant="outline">Reports</Button>
           </Link>
           {canWrite && (
@@ -266,7 +266,7 @@ export default function ProjectDetailPage() {
       </Modal>
 
       <p className="mt-6 text-sm text-text-muted">
-        <Link href="/projects" className="font-medium text-primary transition-colors hover:text-primary-hover">
+        <Link href="/dashboard/projects" className="font-medium text-primary transition-colors hover:text-primary-hover">
           ← Back to projects
         </Link>
       </p>
