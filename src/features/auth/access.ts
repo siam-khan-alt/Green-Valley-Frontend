@@ -2,6 +2,27 @@ import type { Role } from "./types";
 
 export const ALL_ROLES: Role[] = ["admin", "project_manager", "site_staff", "finance", "viewer"];
 
+/** Short URL segment per role: /admin, /pm, /site, /finance, /viewer */
+export const ROLE_SLUG: Record<Role, string> = {
+  admin: "admin",
+  project_manager: "pm",
+  site_staff: "site",
+  finance: "finance",
+  viewer: "viewer",
+};
+
+export const SLUG_TO_ROLE: Record<string, Role> = {
+  admin: "admin",
+  pm: "project_manager",
+  site: "site_staff",
+  finance: "finance",
+  viewer: "viewer",
+};
+
+export function roleSlug(role: Role): string {
+  return ROLE_SLUG[role];
+}
+
 /** Which roles may open each module. Keys match NavItem id / route segments. */
 export const MODULE_ACCESS: Record<string, Role[]> = {
   dashboard: ALL_ROLES,
@@ -28,7 +49,7 @@ export const MODULE_ACCESS: Record<string, Role[]> = {
   "audit-log": ["admin"],
 };
 
-/** Per-project sub-module access, keyed by the route segment after /dashboard/projects/:id. */
+/** Per-project sub-module access, keyed by the route segment after /:role/projects/:id. */
 export const PROJECT_SUBMODULE_ROLES: Record<string, Role[]> = {
   operations: ["admin", "project_manager", "site_staff", "viewer"],
   labor: ["admin", "project_manager", "site_staff", "viewer"],
@@ -45,8 +66,8 @@ export const PROJECT_SUBMODULE_ROLES: Record<string, Role[]> = {
   reports: ALL_ROLES,
 };
 
-export function hasModuleAccess(role: Role, module: string): boolean {
-  return MODULE_ACCESS[module]?.includes(role) ?? false;
+export function hasModuleAccess(role: Role, name: string): boolean {
+  return MODULE_ACCESS[name]?.includes(role) ?? false;
 }
 
 export function resolveProjectSubmoduleRoles(segment: string | undefined): Role[] {
@@ -54,9 +75,24 @@ export function resolveProjectSubmoduleRoles(segment: string | undefined): Role[
   return PROJECT_SUBMODULE_ROLES[segment] ?? ALL_ROLES;
 }
 
-/** Extracts the sub-module segment from e.g. /dashboard/projects/abc/operations → "operations" */
-export function parseProjectSubmodule(pathname: string): string | undefined {
-  const match = pathname.match(/^\/dashboard\/projects\/[^/]+(?:\/([^/]+))?/);
-  if (!match) return undefined;
-  return match[1] || undefined;
+export interface ParsedRolePath {
+  slug: string;
+  role: Role | undefined;
+  area: string | undefined;
+  subarea: string | undefined;
+}
+
+/** Parses /:slug, /:slug/projects, /:slug/projects/:id/:sub, /:slug/materials, … */
+export function parseRolePath(pathname: string): ParsedRolePath | null {
+  const parts = pathname.split("/").filter(Boolean);
+  if (parts.length === 0) return null;
+  const slug = parts[0];
+  const role = SLUG_TO_ROLE[slug];
+  if (!role) return null;
+  const area = parts[1];
+  let subarea: string | undefined;
+  if (area === "projects" && parts.length >= 4) {
+    subarea = parts[3];
+  }
+  return { slug, role, area, subarea };
 }

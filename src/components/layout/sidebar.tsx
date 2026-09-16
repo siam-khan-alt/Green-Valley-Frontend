@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useSyncExternalStore } from "react";
 import { cn } from "@/lib/cn";
-import { hasModuleAccess, useAuth } from "@/features/auth";
+import { hasModuleAccess, roleSlug, useAuth } from "@/features/auth";
 import {
   ACTIVE_PROJECT_KEY,
   NAV_GROUPS,
@@ -43,13 +43,14 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
     getActiveProjectSnapshot,
     getActiveProjectServerSnapshot,
   );
-  const pathProjectId = pathname.match(/^\/dashboard\/projects\/([^/]+)/)?.[1] ?? null;
+  const pathProjectId = pathname.match(/^\/[^/]+\/projects\/([^/]+)/)?.[1] ?? null;
 
   useEffect(() => {
     if (pathProjectId) window.localStorage.setItem(ACTIVE_PROJECT_KEY, pathProjectId);
   }, [pathProjectId]);
 
   const activeProjectId = pathProjectId ?? storedProjectId;
+  const slug = user ? roleSlug(user.role) : "";
 
   const visibleGroups = user
     ? NAV_GROUPS.map((group) => ({
@@ -76,7 +77,7 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
             </p>
             <ul className="flex flex-col gap-0.5">
               {group.items.map((item) => {
-                const href = resolveHref(item, activeProjectId);
+                const href = resolveHref(item, slug, activeProjectId);
                 const placeholder = Boolean(item.projectPath) && !activeProjectId;
                 const active =
                   !placeholder &&

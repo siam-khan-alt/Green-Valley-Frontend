@@ -3,7 +3,8 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useState } from "react";
 import { Badge, Button, Card, CardBody, CardHeader, Input } from "@/components/ui";
-import { DEMO_USERS, ROLES, useAuth } from "@/features/auth";
+import { DEMO_USERS, ROLES, roleSlug, useAuth } from "@/features/auth";
+import type { Role } from "@/features/auth";
 
 export default function LoginPage() {
   return (
@@ -17,7 +18,8 @@ function LoginForm() {
   const { login } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const next = searchParams.get("next") ?? "/dashboard";
+  const next = searchParams.get("next");
+  const home = (role: Role) => `/${roleSlug(role)}`;
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -29,8 +31,10 @@ function LoginForm() {
     setError(undefined);
     setSubmitting(true);
     try {
-      await login({ email, password });
-      router.replace(next);
+      const user = await login({ email, password });
+      router.replace(
+        next && !next.startsWith("/dashboard") ? next : home(user.role),
+      );
     } catch (err) {
       setError(err instanceof Error ? err.message : "Login failed.");
     } finally {

@@ -18,7 +18,7 @@ import {
   ThCell,
   useToast,
 } from "@/components/ui";
-import { useAuth } from "@/features/auth";
+import { roleSlug, useAuth } from "@/features/auth";
 import { KpiCard, useProject } from "@/features/projects";
 import { useWorkPackages } from "@/features/work-packages";
 import type { WorkPackage } from "@/features/work-packages";
@@ -36,6 +36,7 @@ export default function LaborPage() {
   const params = useParams();
   const id = String(params.id);
   const { user } = useAuth();
+  const slug = user ? roleSlug(user.role) : "";
   const toast = useToast();
   const canWrite = !!user && LABOR_WRITE_ROLES.includes(user.role);
 
@@ -211,7 +212,7 @@ export default function LaborPage() {
 
       <p className="mt-5 text-sm text-text-muted">
         <Link
-          href={`/dashboard/projects/${id}`}
+          href={`/${slug}/projects/${id}`}
           className="font-medium text-primary transition-colors hover:text-primary-hover"
         >
           ← Back to project

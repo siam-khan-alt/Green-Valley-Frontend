@@ -14,7 +14,7 @@ import {
   Modal,
   useToast,
 } from "@/components/ui";
-import { useAuth } from "@/features/auth";
+import { roleSlug, useAuth } from "@/features/auth";
 import { KpiCard, Progress } from "@/features/projects";
 import {
   WP_WRITE_ROLES,
@@ -37,6 +37,7 @@ export default function WorkPackageDetailPage() {
   const projectId = String(params.id);
   const wpId = String(params.wpId);
   const { user } = useAuth();
+  const slug = user ? roleSlug(user.role) : "";
   const router = useRouter();
   const toast = useToast();
 
@@ -62,7 +63,7 @@ export default function WorkPackageDetailPage() {
     await deleteWorkPackage.mutateAsync(wpId);
     setDeleteOpen(false);
     toast({ title: "Work package deleted", variant: "success" });
-    router.replace(`/dashboard/projects/${projectId}/work-packages`);
+    router.replace(`/${slug}/projects/${projectId}/work-packages`);
   }
 
   if (workPackagesQuery.isPending || summaryQuery.isPending) {
@@ -220,7 +221,7 @@ export default function WorkPackageDetailPage() {
 
       <p className="mt-5 text-sm text-text-muted">
         <Link
-          href={`/dashboard/projects/${projectId}/work-packages`}
+          href={`/${slug}/projects/${projectId}/work-packages`}
           className="font-medium text-primary transition-colors hover:text-primary-hover"
         >
           ← Back to work packages

@@ -18,7 +18,7 @@ import {
   ThCell,
   useToast,
 } from "@/components/ui";
-import { useAuth } from "@/features/auth";
+import { roleSlug, useAuth } from "@/features/auth";
 import { useProject } from "@/features/projects";
 import {
   WP_WRITE_ROLES,
@@ -38,6 +38,7 @@ export default function WorkPackagesPage() {
   const params = useParams();
   const id = String(params.id);
   const { user } = useAuth();
+  const slug = user ? roleSlug(user.role) : "";
   const toast = useToast();
   const canWrite = !!user && WP_WRITE_ROLES.includes(user.role);
 
@@ -130,7 +131,7 @@ export default function WorkPackagesPage() {
                     </TdCell>
                     <TdCell>
                       <Link
-                        href={`/dashboard/projects/${id}/work-packages/${wp.id}`}
+                        href={`/${slug}/projects/${id}/work-packages/${wp.id}`}
                         className="font-medium text-text transition-colors hover:text-primary"
                       >
                         {wp.name}
@@ -145,7 +146,7 @@ export default function WorkPackagesPage() {
                     </TdCell>
                     <TdCell>
                       <Link
-                        href={`/dashboard/projects/${id}/work-packages/${wp.id}`}
+                        href={`/${slug}/projects/${id}/work-packages/${wp.id}`}
                         className="inline-flex h-8 items-center rounded-md px-3 text-sm font-medium text-primary transition-colors hover:bg-primary-soft"
                       >
                         Summary
@@ -161,7 +162,7 @@ export default function WorkPackagesPage() {
 
       <p className="mt-5 text-sm text-text-muted">
         <Link
-          href={`/dashboard/projects/${id}`}
+          href={`/${slug}/projects/${id}`}
           className="font-medium text-primary transition-colors hover:text-primary-hover"
         >
           ← Back to project

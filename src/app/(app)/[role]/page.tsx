@@ -13,6 +13,7 @@ import {
   hasModuleAccess,
   ROLES,
   ROLE_CAPABILITIES,
+  roleSlug,
   useAuth,
 } from "@/features/auth";
 import type { Role } from "@/features/auth";
@@ -61,7 +62,7 @@ const QUICK_ACTIONS: Record<
     { label: "View profitability", desc: "Budget vs actual overview", slug: "/profitability" },
   ],
   viewer: [
-    { label: "Browse projects", desc: "Read-only portfolio overview", href: "/dashboard/projects" },
+    { label: "Browse projects", desc: "Read-only portfolio overview", href: "/projects" },
     { label: "View reports", desc: "Portfolio-level summaries", href: "/reports" },
   ],
 };
@@ -77,17 +78,18 @@ export default function DashboardPage() {
   if (!user) return null;
 
   const role = user.role;
+  const slug = roleSlug(role);
   const visibleItems = NAV_GROUPS.flatMap((group) =>
     group.items.filter((item) => hasModuleAccess(role, item.id)),
   );
 
   const actions = QUICK_ACTIONS[role].map((action) => ({
     ...action,
-    href:
-      action.href ??
-      (activeProjectId
-        ? `/dashboard/projects/${activeProjectId}${action.slug}`
-        : "/dashboard/projects"),
+    href: action.href
+      ? `/${slug}${action.href}`
+      : activeProjectId
+        ? `/${slug}/projects/${activeProjectId}${action.slug}`
+        : `/${slug}/projects`,
   }));
 
   return (
@@ -130,7 +132,7 @@ export default function DashboardPage() {
         <h2 className="text-lg font-semibold text-text">Your modules</h2>
         <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
           {visibleItems.map((item) => {
-            const href = resolveHref(item, activeProjectId);
+            const href = resolveHref(item, slug, activeProjectId);
             return (
               <Link
                 key={item.id}

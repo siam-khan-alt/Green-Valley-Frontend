@@ -15,10 +15,17 @@ export type NavItem = {
 
 export const ACTIVE_PROJECT_KEY = "gv.activeProjectId";
 
-/** Resolves a nav item's href once we know which project the user is working in. */
-export function resolveHref(item: NavItem, activeProjectId: string | null): string {
-  if (!item.projectPath || !activeProjectId) return item.href;
-  return `/dashboard/projects/${activeProjectId}${item.projectPath}`;
+/** Resolves a nav item's href once we know the user's role slug and active project. */
+export function resolveHref(
+  item: NavItem,
+  slug: string,
+  activeProjectId: string | null,
+): string {
+  if (item.projectPath && activeProjectId) {
+    return `/${slug}/projects/${activeProjectId}${item.projectPath}`;
+  }
+  if (item.href === "/") return `/${slug}`;
+  return `/${slug}${item.href}`;
 }
 
 export type NavGroup = {
@@ -62,8 +69,8 @@ export const NAV_GROUPS: NavGroup[] = [
   {
     label: "Overview",
     items: [
-      { label: "Dashboard", id: "dashboard", href: "/dashboard", icon: ICONS.dashboard, match: ["/"] },
-      { label: "Projects", id: "projects", href: "/dashboard/projects", icon: ICONS.projects },
+      { label: "Dashboard", id: "dashboard", href: "/", icon: ICONS.dashboard },
+      { label: "Projects", id: "projects", href: "/projects", icon: ICONS.projects },
       { label: "Reports", id: "reports", href: "/reports", icon: ICONS.reports },
     ],
   },
@@ -78,12 +85,12 @@ export const NAV_GROUPS: NavGroup[] = [
   {
     label: "Site & Billing",
     items: [
-      { label: "Operations (DPR)", id: "operations", href: "/dashboard/projects", icon: ICONS.operations, projectPath: "/operations" },
-      { label: "Inspections", id: "inspections", href: "/dashboard/projects", icon: ICONS.quality, projectPath: "/quality" },
-      { label: "Billing", id: "billing", href: "/dashboard/projects", icon: ICONS.billing, projectPath: "/billing" },
-      { label: "Variations", id: "variations", href: "/dashboard/projects", icon: ICONS.variations, projectPath: "/variations" },
-      { label: "Expenses", id: "expenses", href: "/dashboard/projects", icon: ICONS.expenses, projectPath: "/expenses" },
-      { label: "Profitability", id: "profitability", href: "/dashboard/projects", icon: ICONS.profitability, projectPath: "/profitability" },
+      { label: "Operations (DPR)", id: "operations", href: "/projects", icon: ICONS.operations, projectPath: "/operations" },
+      { label: "Inspections", id: "inspections", href: "/projects", icon: ICONS.quality, projectPath: "/quality" },
+      { label: "Billing", id: "billing", href: "/projects", icon: ICONS.billing, projectPath: "/billing" },
+      { label: "Variations", id: "variations", href: "/projects", icon: ICONS.variations, projectPath: "/variations" },
+      { label: "Expenses", id: "expenses", href: "/projects", icon: ICONS.expenses, projectPath: "/expenses" },
+      { label: "Profitability", id: "profitability", href: "/projects", icon: ICONS.profitability, projectPath: "/profitability" },
     ],
   },
   {

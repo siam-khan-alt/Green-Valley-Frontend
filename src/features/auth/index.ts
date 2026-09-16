@@ -7,7 +7,10 @@ export {
   ALL_ROLES,
   MODULE_ACCESS,
   PROJECT_SUBMODULE_ROLES,
+  ROLE_SLUG,
+  SLUG_TO_ROLE,
   hasModuleAccess,
-  parseProjectSubmodule,
+  parseRolePath,
   resolveProjectSubmoduleRoles,
+  roleSlug,
 } from "./access";

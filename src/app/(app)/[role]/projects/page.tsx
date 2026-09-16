@@ -18,7 +18,7 @@ import {
   ThCell,
   useToast,
 } from "@/components/ui";
-import { useAuth } from "@/features/auth";
+import { roleSlug, useAuth } from "@/features/auth";
 import {
   PROJECT_WRITE_ROLES,
   ProjectForm,
@@ -34,6 +34,7 @@ const PAGE_SIZE = 6;
 
 export default function ProjectsPage() {
   const { user } = useAuth();
+  const slug = user ? roleSlug(user.role) : "";
   const canWrite = !!user && PROJECT_WRITE_ROLES.includes(user.role);
   const toast = useToast();
 
@@ -112,7 +113,7 @@ export default function ProjectsPage() {
                   <TableRow key={project.id}>
                     <TdCell>
                       <Link
-                        href={`/dashboard/projects/${project.id}`}
+                        href={`/${slug}/projects/${project.id}`}
                         className="font-semibold text-text transition-colors hover:text-primary"
                       >
                         {project.name}
@@ -126,7 +127,7 @@ export default function ProjectsPage() {
                     </TdCell>
                     <TdCell>
                       <Link
-                        href={`/dashboard/projects/${project.id}`}
+                        href={`/${slug}/projects/${project.id}`}
                         className="inline-flex h-8 items-center rounded-md px-3 text-sm font-medium text-primary transition-colors hover:bg-primary-soft"
                       >
                         View

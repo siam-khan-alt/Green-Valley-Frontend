@@ -14,7 +14,7 @@ import {
   Modal,
   useToast,
 } from "@/components/ui";
-import { useAuth } from "@/features/auth";
+import { roleSlug, useAuth } from "@/features/auth";
 import {
   KpiCard,
   PROJECT_WRITE_ROLES,
@@ -38,6 +38,7 @@ export default function ProjectDetailPage() {
   const params = useParams();
   const id = String(params.id);
   const { user } = useAuth();
+  const slug = user ? roleSlug(user.role) : "";
   const router = useRouter();
   const toast = useToast();
 
@@ -68,7 +69,7 @@ export default function ProjectDetailPage() {
       description: "Project removed from the portfolio.",
       variant: "success",
     });
-    router.replace("/dashboard/projects");
+    router.replace("/${slug}/projects");
   }
 
   if (projectQuery.isPending) {
@@ -122,43 +123,43 @@ export default function ProjectDetailPage() {
           <p className="mt-1 text-sm text-text-muted">{project.description}</p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <Link href={`/dashboard/projects/${id}/schedule`}>
+          <Link href={`/${slug}/projects/${id}/schedule`}>
             <Button variant="outline">Schedule</Button>
           </Link>
-          <Link href={`/dashboard/projects/${id}/work-packages`}>
+          <Link href={`/${slug}/projects/${id}/work-packages`}>
             <Button variant="outline">Work packages</Button>
           </Link>
-          <Link href={`/dashboard/projects/${id}/boq`}>
+          <Link href={`/${slug}/projects/${id}/boq`}>
             <Button variant="outline">BOQ</Button>
           </Link>
-          <Link href={`/dashboard/projects/${id}/procurement`}>
+          <Link href={`/${slug}/projects/${id}/procurement`}>
             <Button variant="outline">Procurement</Button>
           </Link>
-          <Link href={`/dashboard/projects/${id}/labor`}>
+          <Link href={`/${slug}/projects/${id}/labor`}>
             <Button variant="outline">Labor</Button>
           </Link>
-          <Link href={`/dashboard/projects/${id}/machinery`}>
+          <Link href={`/${slug}/projects/${id}/machinery`}>
             <Button variant="outline">Machinery</Button>
           </Link>
-          <Link href={`/dashboard/projects/${id}/operations`}>
+          <Link href={`/${slug}/projects/${id}/operations`}>
             <Button variant="outline">Operations (DPR)</Button>
           </Link>
-          <Link href={`/dashboard/projects/${id}/quality`}>
+          <Link href={`/${slug}/projects/${id}/quality`}>
             <Button variant="outline">Quality</Button>
           </Link>
-          <Link href={`/dashboard/projects/${id}/billing`}>
+          <Link href={`/${slug}/projects/${id}/billing`}>
             <Button variant="outline">Billing</Button>
           </Link>
-          <Link href={`/dashboard/projects/${id}/variations`}>
+          <Link href={`/${slug}/projects/${id}/variations`}>
             <Button variant="outline">Variations</Button>
           </Link>
-          <Link href={`/dashboard/projects/${id}/expenses`}>
+          <Link href={`/${slug}/projects/${id}/expenses`}>
             <Button variant="outline">Expenses</Button>
           </Link>
-          <Link href={`/dashboard/projects/${id}/profitability`}>
+          <Link href={`/${slug}/projects/${id}/profitability`}>
             <Button variant="outline">Profitability</Button>
           </Link>
-          <Link href={`/dashboard/projects/${id}/reports`}>
+          <Link href={`/${slug}/projects/${id}/reports`}>
             <Button variant="outline">Reports</Button>
           </Link>
           {canWrite && (
@@ -266,7 +267,7 @@ export default function ProjectDetailPage() {
       </Modal>
 
       <p className="mt-6 text-sm text-text-muted">
-        <Link href="/dashboard/projects" className="font-medium text-primary transition-colors hover:text-primary-hover">
+        <Link href="/${slug}/projects" className="font-medium text-primary transition-colors hover:text-primary-hover">
           ← Back to projects
         </Link>
       </p>

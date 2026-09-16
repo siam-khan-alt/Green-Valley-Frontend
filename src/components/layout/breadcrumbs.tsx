@@ -5,6 +5,11 @@ import { usePathname } from "next/navigation";
 import { IconChevronRight } from "./icons";
 
 const SEGMENT_LABELS: Record<string, string> = {
+  admin: "Admin",
+  pm: "Project Manager",
+  site: "Site Staff",
+  finance: "Finance",
+  viewer: "Viewer",
   dashboard: "Dashboard",
   "ui-kit": "UI Kit",
   login: "Login",
@@ -40,7 +45,7 @@ export function Breadcrumbs() {
   return (
     <nav aria-label="Breadcrumb" className="flex items-center gap-1 text-sm">
       <Link
-        href="/dashboard"
+        href={segments.length > 0 ? `/${segments[0]}` : "/"}
         className="font-medium text-text-muted transition-colors hover:text-text"
       >
         Home

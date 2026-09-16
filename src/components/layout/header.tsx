@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { Button, Dropdown } from "@/components/ui";
-import { ROLES, useAuth } from "@/features/auth";
+import { ROLES, roleSlug, useAuth } from "@/features/auth";
 import { Breadcrumbs } from "./breadcrumbs";
 import { IconMenu } from "./icons";
 import { ThemeToggle } from "./theme-toggle";
@@ -68,7 +68,7 @@ export function Header({ onMenuClick }: { onMenuClick: () => void }) {
             </button>
           }
           items={[
-            { label: "Dashboard", onClick: () => router.push("/dashboard") },
+            { label: "Dashboard", onClick: () => router.push(user ? `/${roleSlug(user.role)}` : "/login") },
             { divider: true },
             { label: "Logout", danger: true, onClick: handleLogout },
           ]}
