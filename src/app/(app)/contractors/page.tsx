@@ -18,7 +18,7 @@ import {
   ThCell,
   useToast,
 } from "@/components/ui";
-import { useAuth } from "@/features/auth";
+import { MODULE_ACCESS, RequireRole, useAuth } from "@/features/auth";
 import { KpiCard, useProjects } from "@/features/projects";
 import { workPackagesApi } from "@/features/work-packages";
 import {
@@ -38,7 +38,7 @@ interface Assignment {
   wpName: string;
 }
 
-export default function ContractorsPage() {
+function ContractorsContent() {
   const { user } = useAuth();
   const toast = useToast();
   const canWrite = !!user && CONTRACTORS_WRITE_ROLES.includes(user.role);
@@ -327,5 +327,13 @@ export default function ContractorsPage() {
         )}
       </Modal>
     </main>
+  );
+}
+
+export default function ContractorsPage() {
+  return (
+    <RequireRole roles={MODULE_ACCESS.contractors}>
+      <ContractorsContent />
+    </RequireRole>
   );
 }

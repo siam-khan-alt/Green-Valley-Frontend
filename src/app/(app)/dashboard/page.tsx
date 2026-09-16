@@ -1,68 +1,161 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
+import Link from "next/link";
+import { useEffect, useSyncExternalStore } from "react";
+import { Badge, Card, CardBody, CardHeader } from "@/components/ui";
 import {
-  Badge,
-  Card,
-  CardBody,
-  CardHeader,
-} from "@/components/ui";
+  ACTIVE_PROJECT_KEY,
+  NAV_GROUPS,
+  resolveHref,
+} from "@/components/layout/nav";
+import { NavIcon } from "@/components/layout/icons";
 import {
+  hasModuleAccess,
   ROLES,
   ROLE_CAPABILITIES,
   useAuth,
 } from "@/features/auth";
-import { api } from "@/services";
+import type { Role } from "@/features/auth";
+import { cn } from "@/lib/cn";
 
-interface ApiMeta {
-  service: string;
-  mock: boolean;
-  version: string;
+function firstName(name: string) {
+  return name.split(" ")[0];
 }
+
+function subscribeToActiveProject(callback: () => void) {
+  window.addEventListener("storage", callback);
+  return () => window.removeEventListener("storage", callback);
+}
+
+function getActiveProjectSnapshot(): string | null {
+  return window.localStorage.getItem(ACTIVE_PROJECT_KEY);
+}
+
+function getActiveProjectServerSnapshot(): string | null {
+  return null;
+}
+
+const QUICK_ACTIONS: Record<
+  Role,
+  { label: string; desc: string; slug?: string; href?: string }[]
+> = {
+  admin: [
+    { label: "Create project", desc: "Add a new project to the portfolio" },
+    { label: "Manage users & roles", desc: "Assign roles and activate accounts", href: "/users" },
+    { label: "Audit log", desc: "Review all sensitive record changes", href: "/audit-log" },
+  ],
+  project_manager: [
+    { label: "Update schedule", desc: "Track milestone progress", slug: "/schedule" },
+    { label: "Manage BOQ", desc: "Control quantities and measurements", slug: "/boq" },
+    { label: "Raise purchase order", desc: "Convert indents to POs", slug: "/procurement" },
+    { label: "Approve variations", desc: "Review scope change requests", slug: "/variations" },
+  ],
+  site_staff: [
+    { label: "Log daily progress", desc: "Submit DPR for today's site work", slug: "/operations" },
+    { label: "Update muster roll", desc: "Record daily attendance", slug: "/labor" },
+    { label: "Record machinery usage", desc: "Log equipment hours", slug: "/machinery" },
+  ],
+  finance: [
+    { label: "Record expense", desc: "Capture costs and payments", slug: "/expenses" },
+    { label: "Approve RA bills", desc: "Validate running account bills", slug: "/billing" },
+    { label: "View profitability", desc: "Budget vs actual overview", slug: "/profitability" },
+  ],
+  viewer: [
+    { label: "Browse projects", desc: "Read-only portfolio overview", href: "/dashboard/projects" },
+    { label: "View reports", desc: "Portfolio-level summaries", href: "/reports" },
+  ],
+};
 
 export default function DashboardPage() {
-  return <Dashboard />;
-}
-
-function Dashboard() {
   const { user } = useAuth();
-  const metaQuery = useQuery({
-    queryKey: ["api-meta"],
-    queryFn: () => api.get<ApiMeta>("/meta"),
-  });
+  const activeProjectId = useSyncExternalStore(
+    subscribeToActiveProject,
+    getActiveProjectSnapshot,
+    getActiveProjectServerSnapshot,
+  );
 
   if (!user) return null;
 
+  const role = user.role;
+  const visibleItems = NAV_GROUPS.flatMap((group) =>
+    group.items.filter((item) => hasModuleAccess(role, item.id)),
+  );
+
+  const actions = QUICK_ACTIONS[role].map((action) => ({
+    ...action,
+    href:
+      action.href ??
+      (activeProjectId
+        ? `/dashboard/projects/${activeProjectId}${action.slug}`
+        : "/dashboard/projects"),
+  }));
+
   return (
-    <main className="mx-auto w-full max-w-4xl">
-      <div className="flex items-center justify-between gap-3">
+    <main className="mx-auto w-full max-w-5xl">
+      <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-text">Dashboard</h1>
+          <h1 className="text-2xl font-bold text-text">
+            Welcome back, {firstName(user.name)}
+          </h1>
           <p className="mt-1 text-sm text-text-muted">
-            Session & role-based rendering — pick an account to explore.
+            {ROLES[role].description}
           </p>
+        </div>
+        <Badge variant="primary" dot>
+          {ROLES[role].label}
+        </Badge>
+      </div>
+
+      <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        {actions.map((action) => (
+          <Link
+            key={action.label}
+            href={action.href}
+            className="group rounded-xl border border-border bg-surface p-4 shadow-sm transition-shadow hover:shadow-md"
+          >
+            <p className="text-sm font-semibold text-text group-hover:text-primary">
+              {action.label}
+            </p>
+            <p className="mt-1 text-xs text-text-muted">{action.desc}</p>
+            {!action.href && !activeProjectId && (
+              <p className="mt-2 inline-block rounded bg-surface-muted px-1.5 py-0.5 text-[11px] font-medium text-primary">
+                Pick a project first
+              </p>
+            )}
+          </Link>
+        ))}
+      </div>
+
+      <div className="mt-8">
+        <h2 className="text-lg font-semibold text-text">Your modules</h2>
+        <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+          {visibleItems.map((item) => {
+            const href = resolveHref(item, activeProjectId);
+            return (
+              <Link
+                key={item.id}
+                href={href}
+                className={cn(
+                  "flex items-center gap-2.5 rounded-lg border border-border bg-surface p-3 text-sm font-medium text-text-muted transition-colors hover:text-primary hover:shadow-sm",
+                  Boolean(item.projectPath) && !activeProjectId && "opacity-60",
+                )}
+              >
+                {item.icon && (
+                  <NavIcon name={item.icon} className="shrink-0 text-primary" />
+                )}
+                {item.label}
+              </Link>
+            );
+          })}
         </div>
       </div>
 
-      <div className="mt-6 grid gap-3 sm:grid-cols-2">
+      <div className="mt-8 grid gap-4 lg:grid-cols-2">
         <Card>
-          <CardHeader title="Signed in as" />
-          <CardBody>
-            <p className="text-lg font-semibold text-text">{user.name}</p>
-            <p className="text-sm text-text-muted">{user.email}</p>
-            <div className="mt-2">
-              <Badge variant="primary" dot>
-                {ROLES[user.role].label}
-              </Badge>
-            </div>
-          </CardBody>
-        </Card>
-
-        <Card>
-          <CardHeader title={`What ${ROLES[user.role].label} can do`} />
+          <CardHeader title={`What ${ROLES[role].label} can do`} />
           <CardBody>
             <ul className="flex flex-col gap-1.5">
-              {ROLE_CAPABILITIES[user.role].map((cap) => (
+              {ROLE_CAPABILITIES[role].map((cap) => (
                 <li key={cap} className="flex items-start gap-2 text-sm text-text">
                   <svg className="mt-0.5 size-4 shrink-0 text-success" viewBox="0 0 24 24" fill="none" aria-hidden>
                     <path d="m5 13 4 4L19 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
@@ -75,34 +168,16 @@ function Dashboard() {
         </Card>
 
         <Card>
-          <CardHeader title="API Core layer" />
+          <CardHeader title="Role-based access" />
           <CardBody>
-            {metaQuery.isPending ? (
-              <p className="text-sm text-text-muted">Verifying mock adapter…</p>
-            ) : metaQuery.isError ? (
-              <div className="flex items-center justify-between gap-3">
-                <div>
-                  <Badge variant="danger" dot>
-                    Adapter error
-                  </Badge>
-                  <p className="mt-1 text-xs text-text-muted">
-                    {metaQuery.error.message}
-                  </p>
-                </div>
-              </div>
-            ) : (
-              <div className="flex items-center justify-between gap-3">
-                <div>
-                  <Badge variant="success" dot>
-                    Mock adapter online
-                  </Badge>
-                  <p className="mt-1 text-xs text-text-muted">
-                    GET /api/v1/meta · {metaQuery.data.service} v
-                    {metaQuery.data.version}
-                  </p>
-                </div>
-              </div>
-            )}
+            <p className="text-sm text-text-muted">
+              Sidebar, dashboards, and module pages are filtered by your role —{" "}
+              {ROLES[role].label} only sees its own team&apos;s flow.
+            </p>
+            <p className="mt-3 text-sm text-text-muted">
+              Pick a project to access that project&apos;s module pages from the
+              sidebar or the quick actions above.
+            </p>
           </CardBody>
         </Card>
       </div>

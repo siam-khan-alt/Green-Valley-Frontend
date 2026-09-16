@@ -16,7 +16,7 @@ import {
   ThCell,
   useToast,
 } from "@/components/ui";
-import { useAuth } from "@/features/auth";
+import { MODULE_ACCESS, RequireRole, useAuth } from "@/features/auth";
 import { KpiCard } from "@/features/projects";
 import {
   MATERIALS_WRITE_ROLES,
@@ -33,7 +33,7 @@ import { formatCurrency } from "@/lib/format";
 const unitLabel = (unit: string) =>
   MATERIAL_UNITS.find((u) => u.value === unit)?.label ?? unit;
 
-export default function MaterialsPage() {
+function MaterialsContent() {
   const { user } = useAuth();
   const toast = useToast();
   const canWrite = !!user && MATERIALS_WRITE_ROLES.includes(user.role);
@@ -242,5 +242,13 @@ export default function MaterialsPage() {
         </div>
       </Modal>
     </main>
+  );
+}
+
+export default function MaterialsPage() {
+  return (
+    <RequireRole roles={MODULE_ACCESS.materials}>
+      <MaterialsContent />
+    </RequireRole>
   );
 }

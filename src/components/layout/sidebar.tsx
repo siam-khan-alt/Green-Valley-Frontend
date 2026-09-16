@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useSyncExternalStore } from "react";
 import { cn } from "@/lib/cn";
+import { hasModuleAccess, useAuth } from "@/features/auth";
 import {
   ACTIVE_PROJECT_KEY,
   NAV_GROUPS,
@@ -36,6 +37,7 @@ function OrgMark() {
 
 export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = usePathname();
+  const { user } = useAuth();
   const storedProjectId = useSyncExternalStore(
     subscribeToActiveProject,
     getActiveProjectSnapshot,
@@ -49,6 +51,13 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
 
   const activeProjectId = pathProjectId ?? storedProjectId;
 
+  const visibleGroups = user
+    ? NAV_GROUPS.map((group) => ({
+        ...group,
+        items: group.items.filter((item) => hasModuleAccess(user.role, item.id)),
+      })).filter((group) => group.items.length > 0)
+    : [];
+
   return (
     <div className="flex h-full flex-col">
       <div className="flex items-center gap-2.5 border-b border-border px-4 py-4">
@@ -60,7 +69,7 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
       </div>
 
       <nav className="flex-1 overflow-y-auto px-3 py-4">
-        {NAV_GROUPS.map((group) => (
+        {visibleGroups.map((group) => (
           <div key={group.label} className="mb-5">
             <p className="px-2 pb-1.5 text-[11px] font-semibold uppercase tracking-wider text-text-muted">
               {group.label}

@@ -16,7 +16,7 @@ import {
   ThCell,
   useToast,
 } from "@/components/ui";
-import { useAuth } from "@/features/auth";
+import { MODULE_ACCESS, RequireRole, useAuth } from "@/features/auth";
 import { KpiCard } from "@/features/projects";
 import {
   SUPPLIERS_WRITE_ROLES,
@@ -28,7 +28,7 @@ import {
 } from "@/features/suppliers";
 import type { Supplier, SupplierPayload } from "@/features/suppliers";
 
-export default function SuppliersPage() {
+function SuppliersContent() {
   const { user } = useAuth();
   const toast = useToast();
   const canWrite = !!user && SUPPLIERS_WRITE_ROLES.includes(user.role);
@@ -225,5 +225,13 @@ export default function SuppliersPage() {
         </div>
       </Modal>
     </main>
+  );
+}
+
+export default function SuppliersPage() {
+  return (
+    <RequireRole roles={MODULE_ACCESS.suppliers}>
+      <SuppliersContent />
+    </RequireRole>
   );
 }
