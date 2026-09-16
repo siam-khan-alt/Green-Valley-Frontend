@@ -31,7 +31,7 @@ export default function HeroSection() {
   );
 
   return (
-    <section className="relative flex min-h-[55vh] items-center overflow-hidden">
+    <section className="relative flex min-h-[65vh] items-center overflow-hidden">
       <div ref={emblaRef} className="absolute inset-0">
         <div className="flex h-full">
           {heroSlides.map((slide, i) => (
@@ -51,7 +51,7 @@ export default function HeroSection() {
       </div>
 
       <div className="relative z-10 mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="relative min-h-[18rem] sm:min-h-[15rem]">
+        <div className="relative min-h-[20rem] sm:min-h-[17rem]">
           {heroSlides.map((slide, i) => (
             <div
               key={slide.image}
