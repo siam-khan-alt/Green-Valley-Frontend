@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useSyncExternalStore } from "react";
+import { useSyncExternalStore } from "react";
 import { Badge, Card, CardBody, CardHeader } from "@/components/ui";
 import {
   ACTIVE_PROJECT_KEY,
