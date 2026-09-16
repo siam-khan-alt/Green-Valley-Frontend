@@ -20,39 +20,8 @@ import Image from "next/image";
 
 export default function PublicLandingPage() {
   return (
-    <div>
-      {/* ── Section 1: Hero ── */}
-      <section className="relative min-h-[80vh] flex items-center overflow-hidden">
-        <div className="absolute inset-0 bg-primary">
-          {/* Decorative abstract shape for visual interest */}
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-white/5 rounded-full opacity-30 rotate-6" />
-        </div>
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center gap-6 text-white">
-          <p className="text-sm font-semibold uppercase tracking-wider text-primary-soft">
-            Est. 2008 &middot; Trusted by 120+ Developers
-          </p>
-          <h1 className="mt-4 text-5xl font-extrabold leading-tight tracking-tight sm:text-6xl">
-            Build with{" "}
-            <span className="text-primary-foreground">Certainty</span>
-            , Deliver with{" "}
-            <span className="text-primary-foreground">Pride</span>
-          </h1>
-          <p className="mt-6 max-w-xl text-lg text-white/80">
-            We combine rigorous cost control, transparent scheduling, and world-class craftsmanship
-            to deliver landmark projects on time and within budget.
-          </p>
-          <div className="mt-8 flex flex-wrap gap-4">
-            <Link href="/projects" className="inline-flex items-center justify-center rounded-md bg-primary px-8 py-4 text-base font-bold text-primary-foreground hover:bg-primary-hover transition-colors shadow-lg shadow-primary/20">
-              View Our Projects
-            </Link>
-            <Link href="/contact" className="inline-flex items-center justify-center rounded-md border-2 border-white/30 px-8 py-4 text-base font-semibold text-white hover:bg-white/10 transition-colors">
-              Talk to Us
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* ── Section 2: Trusted stats ── */}
+    <div className="pt-24">
+      {/* ── Section 1: Trusted stats ── */}
       <section className="bg-surface-muted py-16">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 gap-6 rounded-2xl bg-surface p-8 shadow-sm sm:grid-cols-2 lg:grid-cols-4">
