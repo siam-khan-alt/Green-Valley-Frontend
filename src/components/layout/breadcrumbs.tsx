@@ -45,7 +45,7 @@ export function Breadcrumbs() {
   return (
     <nav aria-label="Breadcrumb" className="flex items-center gap-1 text-sm">
       <Link
-        href={segments.length > 0 ? `/${segments[0]}` : "/"}
+        href={segments.length > 0 ? `/${segments[0]}/dashboard` : "/"}
         className="font-medium text-text-muted transition-colors hover:text-text"
       >
         Home

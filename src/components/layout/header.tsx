@@ -68,7 +68,7 @@ export function Header({ onMenuClick }: { onMenuClick: () => void }) {
             </button>
           }
           items={[
-            { label: "Dashboard", onClick: () => router.push(user ? `/${roleSlug(user.role)}` : "/login") },
+            { label: "Dashboard", onClick: () => router.push(user ? `/${roleSlug(user.role)}/dashboard` : "/login") },
             { divider: true },
             { label: "Logout", danger: true, onClick: handleLogout },
           ]}

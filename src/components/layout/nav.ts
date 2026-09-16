@@ -24,7 +24,6 @@ export function resolveHref(
   if (item.projectPath && activeProjectId) {
     return `/${slug}/projects/${activeProjectId}${item.projectPath}`;
   }
-  if (item.href === "/") return `/${slug}`;
   return `/${slug}${item.href}`;
 }
 
@@ -69,7 +68,7 @@ export const NAV_GROUPS: NavGroup[] = [
   {
     label: "Overview",
     items: [
-      { label: "Dashboard", id: "dashboard", href: "/", icon: ICONS.dashboard },
+      { label: "Dashboard", id: "dashboard", href: "/dashboard", icon: ICONS.dashboard },
       { label: "Projects", id: "projects", href: "/projects", icon: ICONS.projects },
       { label: "Reports", id: "reports", href: "/reports", icon: ICONS.reports },
     ],
