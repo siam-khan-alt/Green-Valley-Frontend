@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { useParams } from "next/navigation";
 import {
   Button,
@@ -24,6 +24,8 @@ import {
 } from "@/features/variations";
 import type { Variation, VariationPayload } from "@/features/variations";
 import { formatCurrency, formatDate, formatNumber } from "@/lib/format";
+import { PageHeader } from "@/components/shared/PageHeader";
+import { useCrud } from "@/hooks/use-crud";
 
 export default function VariationsPage() {
   const params = useParams();
@@ -39,8 +41,7 @@ export default function VariationsPage() {
   const createVariation = useCreateVariation(id);
   const updateVariation = useUpdateVariation(id);
 
-  const [formOpen, setFormOpen] = useState(false);
-  const [editing, setEditing] = useState<Variation | null>(null);
+  const crud = useCrud<Variation>({ resource: "variation" });
 
   const kpis = useMemo(() => {
     const variations = variationsQuery.data ?? [];
@@ -79,36 +80,30 @@ export default function VariationsPage() {
   const variations = variationsQuery.data ?? [];
 
   async function handleSave(payload: VariationPayload) {
-    if (editing) {
-      await updateVariation.mutateAsync({ id: editing.id, patch: payload });
+    if (crud.editing) {
+      await updateVariation.mutateAsync({ id: crud.editing.id, patch: payload });
       toast({ title: "Variation updated", variant: "success" });
     } else {
       await createVariation.mutateAsync(payload);
       toast({ title: "Variation proposed", variant: "success" });
     }
-    setFormOpen(false);
-    setEditing(null);
+    crud.setFormOpen(false);
+    crud.setEditing(null);
   }
 
   async function handleStatus(v: Variation, status: "approved" | "rejected") {
     await updateVariation.mutateAsync({ id: v.id, patch: { status } });
     toast({ title: status === "approved" ? "Variation approved" : "Variation rejected", variant: status === "approved" ? "success" : "info" });
-    setEditing(null);
+    crud.setEditing(null);
   }
 
   return (
     <main className="mx-auto w-full max-w-5xl">
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-bold text-text">Variations</h1>
-          <p className="mt-1 text-sm text-text-muted">
-            {project.name} — change orders & scope adjustments
-          </p>
-        </div>
-        {canWrite && (
-          <Button onClick={() => setFormOpen(true)}>Propose variation</Button>
-        )}
-      </div>
+      <PageHeader
+        title="Variations"
+        description={`${project.name} — change orders & scope adjustments`}
+        actions={canWrite && <Button onClick={() => crud.startCreate()}>Propose variation</Button>}
+      />
 
       <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Card className="p-4">
@@ -134,7 +129,7 @@ export default function VariationsPage() {
           <EmptyState
             title="No variations yet"
             description="Propose a change order when the client alters scope, and track its cost & schedule impact."
-            action={canWrite ? <Button onClick={() => setFormOpen(true)}>Propose variation</Button> : undefined}
+            action={canWrite ? <Button onClick={() => crud.startCreate()}>Propose variation</Button> : undefined}
           />
         ) : (
           <div className="space-y-3">
@@ -163,10 +158,10 @@ export default function VariationsPage() {
                   <div className="flex flex-wrap gap-2">
                     {canApprove && v.status === "proposed" && (
                       <>
-                        <Button variant="outline" size="sm" onClick={() => { setEditing(v); void handleStatus(v, "approved"); }}>
+                        <Button variant="outline" size="sm" onClick={() => { void handleStatus(v, "approved"); }}>
                           Approve
                         </Button>
-                        <Button variant="ghost" size="sm" className="text-danger hover:text-danger" onClick={() => { setEditing(v); void handleStatus(v, "rejected"); }}>
+                        <Button variant="ghost" size="sm" className="text-danger hover:text-danger" onClick={() => { void handleStatus(v, "rejected"); }}>
                           Reject
                         </Button>
                       </>
@@ -175,7 +170,7 @@ export default function VariationsPage() {
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => { setEditing(v); setFormOpen(true); }}
+                        onClick={() => { crud.setEditing(v); crud.setFormOpen(true); }}
                       >
                         Edit
                       </Button>
@@ -189,16 +184,16 @@ export default function VariationsPage() {
       </div>
 
       <Modal
-        open={formOpen}
-        onClose={() => { setFormOpen(false); setEditing(null); }}
-        title={editing ? "Edit variation" : "Propose variation"}
+        open={crud.formOpen}
+        onClose={() => { crud.setFormOpen(false); crud.setEditing(null); }}
+        title={crud.editing ? "Edit variation" : "Propose variation"}
         subtitle="Scope change with cost & schedule impact, tracked until approved."
         size="lg"
       >
         <VariationForm
-          key={editing?.id ?? "new"}
-          initial={editing ?? undefined}
-          onCancel={() => { setFormOpen(false); setEditing(null); }}
+          key={crud.editing?.id ?? "new"}
+          initial={crud.editing ?? undefined}
+          onCancel={() => { crud.setFormOpen(false); crud.setEditing(null); }}
           onSubmit={handleSave}
         />
       </Modal>

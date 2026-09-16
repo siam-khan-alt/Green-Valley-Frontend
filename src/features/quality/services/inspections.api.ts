@@ -8,5 +8,5 @@ export const inspectionsApi = {
     api.post<Inspection>(`/projects/${projectId}/inspections`, payload),
   update: (id: string, patch: InspectionPatch) =>
     api.patch<Inspection>(`/inspections/${id}`, patch),
-  remove: (id: string) => api.del<null>(`/inspections/${id}`),
+  remove: (id: string) => api.del<void>(`/inspections/${id}`),
 };

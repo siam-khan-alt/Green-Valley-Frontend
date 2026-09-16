@@ -12,7 +12,14 @@ export type AuditTargetType =
   | "user"
   | "material"
   | "supplier"
-  | "contractor";
+  | "contractor"
+  | "inspection"
+  | "dpr"
+  | "milestone"
+  | "labor"
+  | "machinery"
+  | "indent"
+  | "grn";
 
 export interface AuditEntry {
   id: string;

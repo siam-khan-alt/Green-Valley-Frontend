@@ -20,6 +20,8 @@ import {
 } from "@/components/ui";
 import { roleSlug, useAuth } from "@/features/auth";
 import { KpiCard, useProject } from "@/features/projects";
+import { PageHeader } from "@/components/shared/PageHeader";
+import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
 import { useWorkPackages } from "@/features/work-packages";
 import type { WorkPackage } from "@/features/work-packages";
 import {
@@ -40,6 +42,7 @@ import type {
   MachineryUsagePayload,
 } from "@/features/machinery";
 import { formatCurrency, formatDate } from "@/lib/format";
+import { useCrud } from "@/hooks/use-crud";
 
 const typeLabel = (type: string) =>
   MACHINE_TYPES.find((t) => t.value === type)?.label ?? type;
@@ -62,11 +65,8 @@ export default function MachineryPage() {
   const deleteMachinery = useDeleteMachinery();
   const createUsage = useCreateMachineryUsage();
 
-  const [registerOpen, setRegisterOpen] = useState(false);
-  const [editing, setEditing] = useState<Machinery | null>(null);
-  const [deleting, setDeleting] = useState<Machinery | null>(null);
+  const crud = useCrud<Machinery>({ resource: "machinery" });
   const [usageOpen, setUsageOpen] = useState(false);
-  const [busy, setBusy] = useState(false);
 
   const machinery = useMemo(() => machineryQuery.data ?? [], [machineryQuery.data]);
   const usage = useMemo(() => usageQuery.data ?? [], [usageQuery.data]);
@@ -121,31 +121,22 @@ export default function MachineryPage() {
   }
 
   async function handleSaveMachinery(payload: MachineryPayload) {
-    if (editing) {
-      await updateMachinery.mutateAsync({ id: editing.id, patch: payload });
+    if (crud.editing) {
+      await updateMachinery.mutateAsync({ id: crud.editing.id, patch: payload });
       toast({ title: "Machinery updated", variant: "success" });
     } else {
       await createMachinery.mutateAsync(payload);
       toast({ title: "Machinery added", variant: "success" });
     }
-    setRegisterOpen(false);
-    setEditing(null);
+    crud.setFormOpen(false);
+    crud.setEditing(null);
   }
 
-  async function handleDelete() {
-    if (!deleting) return;
-    setBusy(true);
-    try {
-      await deleteMachinery.mutateAsync(deleting.id);
-      toast({
-        title: "Machinery removed",
-        description: `${deleting.name} deleted from the register.`,
-        variant: "success",
-      });
-      setDeleting(null);
-    } finally {
-      setBusy(false);
-    }
+  function handleDelete() {
+    void crud.confirmDelete(
+      (mach) => deleteMachinery.mutateAsync(mach.id),
+      { successLabel: "Machinery removed." }
+    );
   }
 
   async function handleCreateUsage(payload: MachineryUsagePayload) {
@@ -161,25 +152,26 @@ export default function MachineryPage() {
 
   return (
     <main className="mx-auto w-full max-w-6xl">
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-bold text-text">Machinery</h1>
-          <p className="mt-1 text-sm text-text-muted">
-            {projectName ? `${projectName} — ` : ""}asset register and daily usage
-            log feeding actual cost.
-          </p>
-        </div>
-        {canWrite && (
-          <div className="flex gap-2">
-            <Button variant="outline" onClick={() => setRegisterOpen(true)}>
-              Add machinery
-            </Button>
-            {machinery.length > 0 && workPackages.length > 0 && (
-              <Button onClick={() => setUsageOpen(true)}>Record usage</Button>
-            )}
-          </div>
-        )}
-      </div>
+      <PageHeader
+        title="Machinery"
+        description={
+          projectName
+            ? `${projectName} — asset register and daily usage log feeding actual cost.`
+            : "Asset register and daily usage log feeding actual cost."
+        }
+        actions={
+          canWrite && (
+            <div className="flex gap-2">
+              <Button variant="outline" onClick={() => crud.startCreate()}>
+                Add machinery
+              </Button>
+              {machinery.length > 0 && workPackages.length > 0 && (
+                <Button onClick={() => setUsageOpen(true)}>Record usage</Button>
+              )}
+            </div>
+          )
+        }
+      />
 
       <div className="mt-6 grid gap-4 sm:grid-cols-3">
         <KpiCard
@@ -204,7 +196,7 @@ export default function MachineryPage() {
             description="Add the construction machinery to the shared register."
             action={
               canWrite ? (
-                <Button onClick={() => setRegisterOpen(true)}>Add machinery</Button>
+                <Button onClick={() => crud.startCreate()}>Add machinery</Button>
               ) : undefined
             }
           />
@@ -236,8 +228,8 @@ export default function MachineryPage() {
                         <button
                           type="button"
                           onClick={() => {
-                            setEditing(machine);
-                            setRegisterOpen(true);
+                            crud.setEditing(machine);
+                            crud.setFormOpen(true);
                           }}
                           className="text-xs font-medium text-primary transition-colors hover:text-primary-hover"
                         >
@@ -245,7 +237,7 @@ export default function MachineryPage() {
                         </button>
                         <button
                           type="button"
-                          onClick={() => setDeleting(machine)}
+                          onClick={() => crud.requestDelete(machine, machine.id)}
                           className="text-xs font-medium text-danger transition-colors hover:text-danger-hover"
                         >
                           Delete
@@ -333,47 +325,42 @@ export default function MachineryPage() {
       </p>
 
       <Modal
-        open={registerOpen}
+        open={crud.formOpen}
         onClose={() => {
-          setRegisterOpen(false);
-          setEditing(null);
+          crud.setFormOpen(false);
+          crud.setEditing(null);
         }}
-        title={editing ? "Edit machinery" : "Add machinery"}
+        title={crud.editing ? "Edit machinery" : "Add machinery"}
         subtitle="Register belongs to the shared catalog used by all projects."
         size="lg"
       >
         <MachineryForm
-          key={editing?.id ?? "new"}
-          initial={editing ?? undefined}
-          submitLabel={editing ? "Save changes" : "Add machinery"}
+          key={crud.editing?.id ?? "new"}
+          initial={crud.editing ?? undefined}
+          submitLabel={crud.editing ? "Save changes" : "Add machinery"}
           onCancel={() => {
-            setRegisterOpen(false);
-            setEditing(null);
+            crud.setFormOpen(false);
+            crud.setEditing(null);
           }}
           onSubmit={handleSaveMachinery}
         />
       </Modal>
 
-      <Modal
-        open={deleting !== null}
-        onClose={() => setDeleting(null)}
+      <ConfirmDialog
+        open={crud.deleteTarget !== null}
+        onClose={() => crud.setDeleteTarget(null)}
+        onConfirm={handleDelete}
         title="Delete machinery"
-        subtitle="Removing an asset from the register."
-        size="sm"
-      >
-        <p className="text-sm text-text-muted">
-          Remove <span className="font-semibold text-text">{deleting?.name}</span> (
-          {deleting?.asset_no}) from the register? Existing usage records are kept.
-        </p>
-        <div className="mt-5 flex justify-end gap-2">
-          <Button variant="secondary" onClick={() => setDeleting(null)}>
-            Cancel
-          </Button>
-          <Button variant="danger" loading={busy} onClick={handleDelete}>
-            Delete machinery
-          </Button>
-        </div>
-      </Modal>
+        description={
+          crud.deleteTarget ? (
+            <>
+              Remove <span className="font-semibold text-text">{crud.deleteTarget.name}</span> (
+              {crud.deleteTarget.asset_no}) from the register? Existing usage records are kept.
+            </>
+          ) : undefined
+        }
+        busy={crud.busy}
+      />
 
       <Modal
         open={usageOpen}

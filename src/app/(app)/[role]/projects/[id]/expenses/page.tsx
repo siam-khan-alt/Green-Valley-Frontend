@@ -33,6 +33,8 @@ import type { Expense, ExpensePayload, Payment, PaymentPayload } from "@/feature
 import { PageHeader } from "@/components/shared/PageHeader";
 import { formatCurrency, formatDate } from "@/lib/format";
 import { exportCsv, formatDateForFile } from "@/lib/csv";
+import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
+import { useCrud } from "@/hooks/use-crud";
 
 const PAYMENT_METHOD_LABEL: Record<string, string> = {
   bank_transfer: "Bank transfer",
@@ -60,12 +62,8 @@ export default function ExpensesPage() {
   const deletePayment = useDeletePayment(id);
 
   const [activeTab, setActiveTab] = useState("expenses");
-  const [expenseFormOpen, setExpenseFormOpen] = useState(false);
-  const [editingExpense, setEditingExpense] = useState<Expense | null>(null);
-  const [deletingExpense, setDeletingExpense] = useState<Expense | null>(null);
-  const [paymentFormOpen, setPaymentFormOpen] = useState(false);
-  const [editingPayment, setEditingPayment] = useState<Payment | null>(null);
-  const [deletingPayment, setDeletingPayment] = useState<Payment | null>(null);
+  const expenseCrud = useCrud<Expense>({ resource: "expense" });
+  const paymentCrud = useCrud<Payment>({ resource: "payment" });
 
   const kpis = useMemo(() => {
     const expenses = expensesQuery.data ?? [];
@@ -112,41 +110,41 @@ export default function ExpensesPage() {
   const payments = paymentsQuery.data ?? [];
 
   async function handleExpenseSave(payload: ExpensePayload) {
-    if (editingExpense) {
-      await updateExpense.mutateAsync({ id: editingExpense.id, patch: payload });
+    if (expenseCrud.editing) {
+      await updateExpense.mutateAsync({ id: expenseCrud.editing.id, patch: payload });
       toast({ title: "Expense updated", variant: "success" });
     } else {
       await createExpense.mutateAsync(payload);
       toast({ title: "Expense recorded", variant: "success" });
     }
-    setExpenseFormOpen(false);
-    setEditingExpense(null);
+    expenseCrud.setFormOpen(false);
+    expenseCrud.setEditing(null);
   }
 
-  async function handleExpenseDelete() {
-    if (!deletingExpense) return;
-    await deleteExpense.mutateAsync(deletingExpense.id);
-    toast({ title: "Expense deleted", variant: "success" });
-    setDeletingExpense(null);
+  function handleExpenseDelete() {
+    void expenseCrud.confirmDelete(
+      (e) => deleteExpense.mutateAsync(e.id),
+      { successLabel: "Expense deleted." }
+    );
   }
 
   async function handlePaymentSave(payload: PaymentPayload) {
-    if (editingPayment) {
-      await updatePayment.mutateAsync({ id: editingPayment.id, patch: payload });
+    if (paymentCrud.editing) {
+      await updatePayment.mutateAsync({ id: paymentCrud.editing.id, patch: payload });
       toast({ title: "Payment updated", variant: "success" });
     } else {
       await createPayment.mutateAsync(payload);
       toast({ title: "Payment recorded", variant: "success" });
     }
-    setPaymentFormOpen(false);
-    setEditingPayment(null);
+    paymentCrud.setFormOpen(false);
+    paymentCrud.setEditing(null);
   }
 
-  async function handlePaymentDelete() {
-    if (!deletingPayment) return;
-    await deletePayment.mutateAsync(deletingPayment.id);
-    toast({ title: "Payment deleted", variant: "success" });
-    setDeletingPayment(null);
+  function handlePaymentDelete() {
+    void paymentCrud.confirmDelete(
+      (p) => deletePayment.mutateAsync(p.id),
+      { successLabel: "Payment deleted." }
+    );
   }
 
   function handleExport() {
@@ -206,14 +204,14 @@ export default function ExpensesPage() {
               <div className="mt-1">
                 <div className="flex justify-end">
                   {canWrite && (
-                    <Button onClick={() => setExpenseFormOpen(true)}>Record expense</Button>
+                    <Button onClick={() => expenseCrud.startCreate()}>Record expense</Button>
                   )}
                 </div>
                 {expenses.length === 0 ? (
                   <EmptyState
                     title="No expenses recorded"
                     description="Log project spend by category to track cash outflow."
-                    action={canWrite ? <Button onClick={() => setExpenseFormOpen(true)}>Record expense</Button> : undefined}
+                    action={canWrite ? <Button onClick={() => expenseCrud.startCreate()}>Record expense</Button> : undefined}
                   />
                 ) : (
                   <div className="mt-4 space-y-3">
@@ -240,8 +238,8 @@ export default function ExpensesPage() {
                                   variant="ghost"
                                   size="sm"
                                   onClick={() => {
-                                    setEditingExpense(e);
-                                    setExpenseFormOpen(true);
+                                    expenseCrud.setEditing(e);
+                                    expenseCrud.setFormOpen(true);
                                   }}
                                 >
                                   Edit
@@ -250,7 +248,7 @@ export default function ExpensesPage() {
                                   variant="ghost"
                                   size="sm"
                                   className="text-danger hover:text-danger"
-                                  onClick={() => setDeletingExpense(e)}
+                                  onClick={() => expenseCrud.requestDelete(e, e.id)}
                                 >
                                   Delete
                                 </Button>
@@ -267,14 +265,14 @@ export default function ExpensesPage() {
               <div className="mt-1">
                 <div className="flex justify-end">
                   {canWrite && (
-                    <Button onClick={() => setPaymentFormOpen(true)}>Record payment</Button>
+                    <Button onClick={() => paymentCrud.startCreate()}>Record payment</Button>
                   )}
                 </div>
                 {payments.length === 0 ? (
                   <EmptyState
                     title="No payments recorded"
                     description="Record outgoing payments to suppliers, contractors and staff."
-                    action={canWrite ? <Button onClick={() => setPaymentFormOpen(true)}>Record payment</Button> : undefined}
+                    action={canWrite ? <Button onClick={() => paymentCrud.startCreate()}>Record payment</Button> : undefined}
                   />
                 ) : (
                   <div className="mt-4 space-y-3">
@@ -302,8 +300,8 @@ export default function ExpensesPage() {
                                   variant="ghost"
                                   size="sm"
                                   onClick={() => {
-                                    setEditingPayment(p);
-                                    setPaymentFormOpen(true);
+                                    paymentCrud.setEditing(p);
+                                    paymentCrud.setFormOpen(true);
                                   }}
                                 >
                                   Edit
@@ -312,7 +310,7 @@ export default function ExpensesPage() {
                                   variant="ghost"
                                   size="sm"
                                   className="text-danger hover:text-danger"
-                                  onClick={() => setDeletingPayment(p)}
+                                  onClick={() => paymentCrud.requestDelete(p, p.id)}
                                 >
                                   Delete
                                 </Button>
@@ -331,80 +329,81 @@ export default function ExpensesPage() {
       </div>
 
       <Modal
-        open={expenseFormOpen}
+        open={expenseCrud.formOpen}
         onClose={() => {
-          setExpenseFormOpen(false);
-          setEditingExpense(null);
+          expenseCrud.setFormOpen(false);
+          expenseCrud.setEditing(null);
         }}
-        title={editingExpense ? "Edit expense" : "Record expense"}
+        title={expenseCrud.editing ? "Edit expense" : "Record expense"}
         subtitle="Log project spend by category."
         size="lg"
       >
         <ExpenseForm
-          key={editingExpense?.id ?? "new"}
-          initial={editingExpense ?? undefined}
+          key={expenseCrud.editing?.id ?? "new"}
+          initial={expenseCrud.editing ?? undefined}
           onCancel={() => {
-            setExpenseFormOpen(false);
-            setEditingExpense(null);
+            expenseCrud.setFormOpen(false);
+            expenseCrud.setEditing(null);
           }}
           onSubmit={handleExpenseSave}
         />
       </Modal>
 
-      <Modal
-        open={deletingExpense !== null}
-        onClose={() => setDeletingExpense(null)}
+      <ConfirmDialog
+        open={expenseCrud.deleteTarget !== null}
+        onClose={() => expenseCrud.setDeleteTarget(null)}
+        onConfirm={handleExpenseDelete}
         title="Delete expense"
-        subtitle="This action cannot be undone."
-        size="sm"
-      >
-        <p className="text-sm text-text-muted">
-          Delete the {deletingExpense?.category} expense of{" "}
-          <span className="font-semibold text-text">{deletingExpense ? formatCurrency(deletingExpense.amount) : ""}</span>?
-        </p>
-        <div className="mt-5 flex justify-end gap-2">
-          <Button variant="secondary" onClick={() => setDeletingExpense(null)}>Cancel</Button>
-          <Button variant="danger" onClick={() => void handleExpenseDelete()}>Delete expense</Button>
-        </div>
-      </Modal>
+        description={
+          expenseCrud.deleteTarget ? (
+            <>
+              Delete the {expenseCrud.deleteTarget.category} expense of{" "}
+              <span className="font-semibold text-text">
+                {formatCurrency(expenseCrud.deleteTarget.amount)}
+              </span>
+              ?
+            </>
+          ) : undefined
+        }
+        busy={expenseCrud.busy}
+      />
 
       <Modal
-        open={paymentFormOpen}
+        open={paymentCrud.formOpen}
         onClose={() => {
-          setPaymentFormOpen(false);
-          setEditingPayment(null);
+          paymentCrud.setFormOpen(false);
+          paymentCrud.setEditing(null);
         }}
-        title={editingPayment ? "Edit payment" : "Record payment"}
+        title={paymentCrud.editing ? "Edit payment" : "Record payment"}
         subtitle="Record outgoing payments against suppliers, contractors or RA bills."
         size="lg"
       >
         <PaymentForm
-          key={editingPayment?.id ?? "new"}
-          initial={editingPayment ?? undefined}
+          key={paymentCrud.editing?.id ?? "new"}
+          initial={paymentCrud.editing ?? undefined}
           onCancel={() => {
-            setPaymentFormOpen(false);
-            setEditingPayment(null);
+            paymentCrud.setFormOpen(false);
+            paymentCrud.setEditing(null);
           }}
           onSubmit={handlePaymentSave}
         />
       </Modal>
 
-      <Modal
-        open={deletingPayment !== null}
-        onClose={() => setDeletingPayment(null)}
+      <ConfirmDialog
+        open={paymentCrud.deleteTarget !== null}
+        onClose={() => paymentCrud.setDeleteTarget(null)}
+        onConfirm={handlePaymentDelete}
         title="Delete payment"
-        subtitle="This action cannot be undone."
-        size="sm"
-      >
-        <p className="text-sm text-text-muted">
-          Delete the {formatCurrency(deletingPayment?.amount ?? 0)} payment to{" "}
-          <span className="font-semibold text-text">{deletingPayment?.payee}</span>?
-        </p>
-        <div className="mt-5 flex justify-end gap-2">
-          <Button variant="secondary" onClick={() => setDeletingPayment(null)}>Cancel</Button>
-          <Button variant="danger" onClick={() => void handlePaymentDelete()}>Delete payment</Button>
-        </div>
-      </Modal>
+        description={
+          paymentCrud.deleteTarget ? (
+            <>
+              Delete the {formatCurrency(paymentCrud.deleteTarget.amount)} payment to{" "}
+              <span className="font-semibold text-text">{paymentCrud.deleteTarget.payee}</span>?
+            </>
+          ) : undefined
+        }
+        busy={paymentCrud.busy}
+      />
     </main>
   );
 }

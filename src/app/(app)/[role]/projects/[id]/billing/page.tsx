@@ -44,6 +44,8 @@ import type {
 import { PageHeader } from "@/components/shared/PageHeader";
 import { formatCurrency, formatDate } from "@/lib/format";
 import { exportCsv, formatDateForFile } from "@/lib/csv";
+import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
+import { useCrud } from "@/hooks/use-crud";
 
 export default function BillingPage() {
   const params = useParams();
@@ -68,9 +70,7 @@ export default function BillingPage() {
   const updateRaBill = useUpdateRaBill(id);
 
   const [activeTab, setActiveTab] = useState("measurements");
-  const [measureFormOpen, setMeasureFormOpen] = useState(false);
-  const [editingMeasurement, setEditingMeasurement] = useState<Measurement | null>(null);
-  const [deletingMeasurement, setDeletingMeasurement] = useState<Measurement | null>(null);
+  const measureCrud = useCrud<Measurement>({ resource: "measurement" });
   const [billFormOpen, setBillFormOpen] = useState(false);
   const [deductionsBill, setDeductionsBill] = useState<RaBill | null>(null);
 
@@ -117,28 +117,27 @@ export default function BillingPage() {
   const bills = raBillsQuery.data ?? [];
 
   async function handleMeasurementSave(payload: MeasurementPayload) {
-    if (editingMeasurement) {
-      await updateMeasurement.mutateAsync({ id: editingMeasurement.id, patch: payload });
+    if (measureCrud.editing) {
+      await updateMeasurement.mutateAsync({ id: measureCrud.editing.id, patch: payload });
       toast({ title: "Measurement updated", variant: "success" });
     } else {
       await createMeasurement.mutateAsync(payload);
       toast({ title: "Measurement added", variant: "success" });
     }
-    setMeasureFormOpen(false);
-    setEditingMeasurement(null);
+    measureCrud.setFormOpen(false);
+    measureCrud.setEditing(null);
   }
 
   async function handleMeasurementStatus(m: Measurement, patch: MeasurementPatch) {
     await updateMeasurement.mutateAsync({ id: m.id, patch });
     toast({ title: "Measurement status updated", variant: "success" });
-    setEditingMeasurement(null);
   }
 
-  async function handleMeasurementDelete() {
-    if (!deletingMeasurement) return;
-    await deleteMeasurement.mutateAsync(deletingMeasurement.id);
-    toast({ title: "Measurement deleted", variant: "success" });
-    setDeletingMeasurement(null);
+  function handleMeasurementDelete() {
+    void measureCrud.confirmDelete(
+      (m) => deleteMeasurement.mutateAsync(m.id),
+      { successLabel: "Measurement deleted." }
+    );
   }
 
   async function handleBillCreate(payload: RaBillPayload) {
@@ -236,14 +235,14 @@ export default function BillingPage() {
               <div className="mt-1">
                 <div className="flex justify-end">
                   {canWriteMeasure && (
-                    <Button onClick={() => setMeasureFormOpen(true)}>Add measurement</Button>
+                    <Button onClick={() => measureCrud.startCreate()}>Add measurement</Button>
                   )}
                 </div>
                 {measurements.length === 0 ? (
                   <EmptyState
                     title="No measurements yet"
                     description="Record measured quantities against BOQ items to start billing."
-                    action={canWriteMeasure ? <Button onClick={() => setMeasureFormOpen(true)}>Add measurement</Button> : undefined}
+                    action={canWriteMeasure ? <Button onClick={() => measureCrud.startCreate()}>Add measurement</Button> : undefined}
                   />
                 ) : (
                   <div className="mt-4 space-y-3">
@@ -291,8 +290,8 @@ export default function BillingPage() {
                                   variant="ghost"
                                   size="sm"
                                   onClick={() => {
-                                    setEditingMeasurement(m);
-                                    setMeasureFormOpen(true);
+                                    measureCrud.setEditing(m);
+                                    measureCrud.setFormOpen(true);
                                   }}
                                 >
                                   Edit
@@ -301,7 +300,7 @@ export default function BillingPage() {
                                   variant="ghost"
                                   size="sm"
                                   className="text-danger hover:text-danger"
-                                  onClick={() => setDeletingMeasurement(m)}
+                                  onClick={() => measureCrud.requestDelete(m, m.id)}
                                 >
                                   Delete
                                 </Button>
@@ -420,43 +419,45 @@ export default function BillingPage() {
       </div>
 
       <Modal
-        open={measureFormOpen}
+        open={measureCrud.formOpen}
         onClose={() => {
-          setMeasureFormOpen(false);
-          setEditingMeasurement(null);
+          measureCrud.setFormOpen(false);
+          measureCrud.setEditing(null);
         }}
-        title={editingMeasurement ? "Edit measurement" : "Add measurement"}
+        title={measureCrud.editing ? "Edit measurement" : "Add measurement"}
         subtitle="Record measured quantity against a BOQ item."
         size="lg"
       >
         <MeasurementForm
-          key={editingMeasurement?.id ?? "new"}
+          key={measureCrud.editing?.id ?? "new"}
           projectId={id}
-          initial={editingMeasurement ?? undefined}
+          initial={measureCrud.editing ?? undefined}
           onCancel={() => {
-            setMeasureFormOpen(false);
-            setEditingMeasurement(null);
+            measureCrud.setFormOpen(false);
+            measureCrud.setEditing(null);
           }}
           onSubmit={handleMeasurementSave}
         />
       </Modal>
 
-      <Modal
-        open={deletingMeasurement !== null}
-        onClose={() => setDeletingMeasurement(null)}
+      <ConfirmDialog
+        open={measureCrud.deleteTarget !== null}
+        onClose={() => measureCrud.setDeleteTarget(null)}
+        onConfirm={handleMeasurementDelete}
         title="Delete measurement"
-        subtitle="This action cannot be undone."
-        size="sm"
-      >
-        <p className="text-sm text-text-muted">
-          Delete the {deletingMeasurement?.boq_item_description} measurement for{" "}
-          <span className="font-semibold text-text">{deletingMeasurement?.work_package_code}</span>?
-        </p>
-        <div className="mt-5 flex justify-end gap-2">
-          <Button variant="secondary" onClick={() => setDeletingMeasurement(null)}>Cancel</Button>
-          <Button variant="danger" onClick={handleMeasurementDelete}>Delete measurement</Button>
-        </div>
-      </Modal>
+        description={
+          measureCrud.deleteTarget ? (
+            <>
+              Delete the {measureCrud.deleteTarget.boq_item_description} measurement for{" "}
+              <span className="font-semibold text-text">
+                {measureCrud.deleteTarget.work_package_code}
+              </span>
+              ?
+            </>
+          ) : undefined
+        }
+        busy={measureCrud.busy}
+      />
 
       <Modal
         open={billFormOpen}

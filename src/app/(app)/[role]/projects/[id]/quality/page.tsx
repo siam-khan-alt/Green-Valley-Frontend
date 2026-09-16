@@ -13,6 +13,8 @@ import {
   Tabs,
   useToast,
 } from "@/components/ui";
+import { PageHeader } from "@/components/shared/PageHeader";
+import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
 import { useAuth } from "@/features/auth";
 import { useProject } from "@/features/projects";
 import {
@@ -29,6 +31,7 @@ import {
 } from "@/features/quality";
 import type { Inspection, InspectionPayload, InspectionPatch } from "@/features/quality";
 import { formatDate } from "@/lib/format";
+import { useCrud } from "@/hooks/use-crud";
 
 export default function QualityPage() {
   const params = useParams();
@@ -38,6 +41,7 @@ export default function QualityPage() {
 
   const canWrite = !!user && INSPECTION_WRITE_ROLES.includes(user.role);
   const canApprove = !!user && INSPECTION_APPROVE_ROLES.includes(user.role);
+  const crud = useCrud<Inspection>({ resource: "inspection" });
 
   const projectQuery = useProject(id);
   const inspectionsQuery = useInspections(id);
@@ -45,10 +49,8 @@ export default function QualityPage() {
   const updateInspection = useUpdateInspection(id);
   const deleteInspection = useDeleteInspection(id);
 
-  const [formOpen, setFormOpen] = useState(false);
-  const [editing, setEditing] = useState<Inspection | null>(null);
   const [statusOpen, setStatusOpen] = useState(false);
-  const [deleting, setDeleting] = useState<Inspection | null>(null);
+  const [statusEditing, setStatusEditing] = useState<Inspection | null>(null);
   const [activeTab, setActiveTab] = useState("open");
 
   if (projectQuery.isPending || inspectionsQuery.isPending) {
@@ -82,37 +84,33 @@ export default function QualityPage() {
 
   async function handleCreate(payload: InspectionPayload) {
     await createInspection.mutateAsync(payload);
-    setFormOpen(false);
-    setEditing(null);
+    crud.setFormOpen(false);
+    crud.setEditing(null);
     toast({ title: "Inspection requested", variant: "success" });
   }
 
   async function handleStatusPatch(patch: InspectionPatch) {
-    if (!editing) return;
-    await updateInspection.mutateAsync({ id: editing.id, patch });
+    if (!statusEditing) return;
+    await updateInspection.mutateAsync({ id: statusEditing.id, patch });
     setStatusOpen(false);
-    setEditing(null);
+    setStatusEditing(null);
     toast({ title: "Inspection updated", variant: "success" });
   }
 
-  async function handleDelete() {
-    if (!deleting) return;
-    await deleteInspection.mutateAsync(deleting.id);
-    setDeleting(null);
-    toast({ title: "Inspection deleted", variant: "success" });
+  function handleDelete() {
+    void crud.confirmDelete(
+      (insp) => deleteInspection.mutateAsync(insp.id),
+      { successLabel: "Inspection deleted." }
+    );
   }
 
   return (
     <main className="mx-auto w-full max-w-5xl">
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-bold text-text">Quality Inspections</h1>
-          <p className="mt-1 text-sm text-text-muted">{project.name} — inspection workflow</p>
-        </div>
-        {canWrite && (
-          <Button onClick={() => setFormOpen(true)}>Request inspection</Button>
-        )}
-      </div>
+      <PageHeader
+        title="Quality Inspections"
+        description={`${project.name} — inspection workflow`}
+        actions={canWrite && <Button onClick={() => crud.startCreate()}>Request inspection</Button>}
+      />
 
       <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Card className="p-4">
@@ -149,7 +147,7 @@ export default function QualityPage() {
                   <EmptyState
                     title="No open inspections"
                     description="All inspections have been resolved. Request a new inspection when a stage is ready for review."
-                    action={canWrite ? <Button onClick={() => setFormOpen(true)}>Request inspection</Button> : undefined}
+                    action={canWrite ? <Button onClick={() => crud.startCreate()}>Request inspection</Button> : undefined}
                   />
                 ) : (
                   <div className="space-y-3">
@@ -174,7 +172,7 @@ export default function QualityPage() {
                                 variant="outline"
                                 size="sm"
                                 onClick={() => {
-                                  setEditing(insp);
+                                  setStatusEditing(insp);
                                   setStatusOpen(true);
                                 }}
                               >
@@ -187,8 +185,8 @@ export default function QualityPage() {
                                   variant="ghost"
                                   size="sm"
                                   onClick={() => {
-                                    setEditing(insp);
-                                    setFormOpen(true);
+                                    crud.setEditing(insp);
+                                    crud.setFormOpen(true);
                                   }}
                                 >
                                   Edit
@@ -197,7 +195,7 @@ export default function QualityPage() {
                                   variant="ghost"
                                   size="sm"
                                   className="text-danger hover:text-danger"
-                                  onClick={() => setDeleting(insp)}
+                                  onClick={() => crud.requestDelete(insp, insp.id)}
                                 >
                                   Delete
                                 </Button>
@@ -243,23 +241,23 @@ export default function QualityPage() {
       </div>
 
       <Modal
-        open={formOpen}
+        open={crud.formOpen}
         onClose={() => {
-          setFormOpen(false);
-          setEditing(null);
+          crud.setFormOpen(false);
+          crud.setEditing(null);
         }}
-        title={editing ? "Edit inspection" : "Request inspection"}
-        subtitle={editing ? undefined : "Request a QA inspection for a work package stage."}
+        title={crud.editing ? "Edit inspection" : "Request inspection"}
+        subtitle={crud.editing ? undefined : "Request a QA inspection for a work package stage."}
         size="lg"
       >
         <InspectionForm
-          key={editing?.id ?? "new"}
-          initial={editing ?? undefined}
+          key={crud.editing?.id ?? "new"}
+          initial={crud.editing ?? undefined}
           projectId={id}
-          submitLabel={editing ? "Save changes" : "Request inspection"}
+          submitLabel={crud.editing ? "Save changes" : "Request inspection"}
           onCancel={() => {
-            setFormOpen(false);
-            setEditing(null);
+            crud.setFormOpen(false);
+            crud.setEditing(null);
           }}
           onSubmit={handleCreate}
         />
@@ -269,40 +267,32 @@ export default function QualityPage() {
         open={statusOpen}
         onClose={() => {
           setStatusOpen(false);
-          setEditing(null);
+          setStatusEditing(null);
         }}
         title="Update inspection status"
         subtitle="Schedule, pass or reject this inspection."
         size="lg"
       >
-        {editing && (
+        {statusEditing && (
           <InspectionStatusForm
-            inspection={editing}
+            inspection={statusEditing}
             onCancel={() => {
               setStatusOpen(false);
-              setEditing(null);
+              setStatusEditing(null);
             }}
             onSubmit={handleStatusPatch}
           />
         )}
       </Modal>
 
-      <Modal
-        open={deleting !== null}
-        onClose={() => setDeleting(null)}
+      <ConfirmDialog
+        open={crud.deleteTarget !== null}
+        onClose={() => crud.setDeleteTarget(null)}
+        onConfirm={handleDelete}
         title="Delete inspection"
-        subtitle="This action cannot be undone."
-        size="sm"
-      >
-        <p className="text-sm text-text-muted">
-          Delete the {INSPECTION_TYPES.find((t) => t.value === deleting?.type)?.label ?? "inspection"} inspection for{" "}
-          <span className="font-semibold text-text">{deleting?.work_package_code}</span>?
-        </p>
-        <div className="mt-5 flex justify-end gap-2">
-          <Button variant="secondary" onClick={() => setDeleting(null)}>Cancel</Button>
-          <Button variant="danger" onClick={handleDelete}>Delete inspection</Button>
-        </div>
-      </Modal>
+        description={`Delete the ${INSPECTION_TYPES.find((t) => t.value === crud.deleteTarget?.type)?.label ?? "inspection"} inspection for ${crud.deleteTarget?.work_package_code}?`}
+        busy={crud.busy}
+      />
     </main>
   );
 }

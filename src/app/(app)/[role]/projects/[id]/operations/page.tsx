@@ -14,6 +14,8 @@ import {
   Tabs,
   useToast,
 } from "@/components/ui";
+import { PageHeader } from "@/components/shared/PageHeader";
+import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
 import { useAuth } from "@/features/auth";
 import { useProject } from "@/features/projects";
 import { useWorkPackages } from "@/features/work-packages";
@@ -27,6 +29,7 @@ import {
   useUpdateDpr,
 } from "@/features/operations";
 import type { DailyProgressReport, DprPayload } from "@/features/operations";
+import { useCrud } from "@/hooks/use-crud";
 
 export default function OperationsPage() {
   const params = useParams();
@@ -35,6 +38,7 @@ export default function OperationsPage() {
   const toast = useToast();
 
   const canWrite = !!user && DPR_WRITE_ROLES.includes(user.role);
+  const crud = useCrud<DailyProgressReport>({ resource: "dpr" });
 
   const projectQuery = useProject(id);
   const wpQuery = useWorkPackages(id);
@@ -43,9 +47,6 @@ export default function OperationsPage() {
   const updateDpr = useUpdateDpr(id);
   const deleteDpr = useDeleteDpr(id);
 
-  const [formOpen, setFormOpen] = useState(false);
-  const [editing, setEditing] = useState<DailyProgressReport | null>(null);
-  const [deleting, setDeleting] = useState<DailyProgressReport | null>(null);
   const [chartWpId, setChartWpId] = useState<string>("");
   const [activeTab, setActiveTab] = useState("feed");
   const projectId = id;
@@ -106,35 +107,31 @@ export default function OperationsPage() {
   if (!project) return null;
 
   async function handleSave(payload: DprPayload) {
-    if (editing) {
-      await updateDpr.mutateAsync({ id: editing.id, patch: payload });
+    if (crud.editing) {
+      await updateDpr.mutateAsync({ id: crud.editing.id, patch: payload });
       toast({ title: "DPR updated", variant: "success" });
     } else {
       await createDpr.mutateAsync(payload);
       toast({ title: "DPR added", variant: "success" });
     }
-    setFormOpen(false);
-    setEditing(null);
+    crud.setFormOpen(false);
+    crud.setEditing(null);
   }
 
-  async function handleDelete() {
-    if (!deleting) return;
-    await deleteDpr.mutateAsync(deleting.id);
-    toast({ title: "DPR deleted", variant: "success" });
-    setDeleting(null);
+  function handleDelete() {
+    void crud.confirmDelete(
+      (dpr) => deleteDpr.mutateAsync(dpr.id),
+      { successLabel: "DPR deleted." }
+    );
   }
 
   return (
     <main className="mx-auto w-full max-w-5xl">
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-bold text-text">Daily Progress Reports</h1>
-          <p className="mt-1 text-sm text-text-muted">{project.name} — Operations log</p>
-        </div>
-        {canWrite && (
-          <Button onClick={() => setFormOpen(true)}>Add DPR</Button>
-        )}
-      </div>
+      <PageHeader
+        title="Daily Progress Reports"
+        description={`${project.name} — Operations log`}
+        actions={canWrite && <Button onClick={() => crud.startCreate()}>Add DPR</Button>}
+      />
 
       <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Card className="p-4">
@@ -171,7 +168,7 @@ export default function OperationsPage() {
                   <EmptyState
                     title="No daily reports yet"
                     description="Log daily progress, labor, and machinery to track site activity."
-                    action={canWrite ? <Button onClick={() => setFormOpen(true)}>Add DPR</Button> : undefined}
+                    action={canWrite ? <Button onClick={() => crud.startCreate()}>Add DPR</Button> : undefined}
                   />
                 ) : (
                   <div className="space-y-3">
@@ -209,8 +206,8 @@ export default function OperationsPage() {
                                   variant="ghost"
                                   size="sm"
                                   onClick={() => {
-                                    setEditing(dpr);
-                                    setFormOpen(true);
+                                    crud.setEditing(dpr);
+                                    crud.setFormOpen(true);
                                   }}
                                 >
                                   Edit
@@ -219,7 +216,7 @@ export default function OperationsPage() {
                                   variant="ghost"
                                   size="sm"
                                   className="text-danger hover:text-danger"
-                                  onClick={() => setDeleting(dpr)}
+                                  onClick={() => crud.requestDelete(dpr, dpr.id)}
                                 >
                                   Delete
                                 </Button>
@@ -264,50 +261,47 @@ export default function OperationsPage() {
       </div>
 
       <Modal
-        open={formOpen}
+        open={crud.formOpen}
         onClose={() => {
-          setFormOpen(false);
-          setEditing(null);
+          crud.setFormOpen(false);
+          crud.setEditing(null);
         }}
-        title={editing ? "Edit DPR" : "Add Daily Progress Report"}
+        title={crud.editing ? "Edit DPR" : "Add Daily Progress Report"}
         subtitle="Record site progress, labor, and machinery usage."
         size="lg"
       >
         <DprForm
-          key={editing?.id ?? "new"}
+          key={crud.editing?.id ?? "new"}
           projectId={projectId}
-          initial={editing ? { date: editing.date, work_package_id: editing.work_package_id } : undefined}
-          submitLabel={editing ? "Save changes" : "Add DPR"}
+          initial={crud.editing ? { date: crud.editing.date, work_package_id: crud.editing.work_package_id } : undefined}
+          submitLabel={crud.editing ? "Save changes" : "Add DPR"}
           onCancel={() => {
-            setFormOpen(false);
-            setEditing(null);
+            crud.setFormOpen(false);
+            crud.setEditing(null);
           }}
           onSubmit={handleSave}
         />
       </Modal>
 
-      <Modal
-        open={deleting !== null}
-        onClose={() => setDeleting(null)}
+      <ConfirmDialog
+        open={crud.deleteTarget !== null}
+        onClose={() => crud.setDeleteTarget(null)}
+        onConfirm={handleDelete}
         title="Delete DPR"
-        subtitle="This action cannot be undone."
-        size="sm"
-      >
-        {deleting && (
-          <p className="text-sm text-text-muted">
-            Delete the report for <span className="font-semibold text-text">
-              {deleting.work_package_code}</span> on
+        description={
+          crud.deleteTarget && (
+            <>
+              Delete the report for{" "}
+              <span className="font-semibold text-text">{crud.deleteTarget.work_package_code}</span> on{" "}
               <span className="font-semibold text-text">
-                {new Date(deleting.date).toLocaleDateString("en-GB")}
+                {new Date(crud.deleteTarget.date).toLocaleDateString("en-GB")}
               </span>
-            ?
-          </p>
-        )}
-        <div className="mt-5 flex justify-end gap-2">
-          <Button variant="secondary" onClick={() => setDeleting(null)}>Cancel</Button>
-          <Button variant="danger" onClick={handleDelete}>Delete DPR</Button>
-        </div>
-      </Modal>
+              ?
+            </>
+          )
+        }
+        busy={crud.busy}
+      />
     </main>
   );
 }

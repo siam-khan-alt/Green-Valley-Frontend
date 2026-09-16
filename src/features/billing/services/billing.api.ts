@@ -15,7 +15,7 @@ export const billingApi = {
     api.post<Measurement>(`/projects/${projectId}/measurements`, payload),
   updateMeasurement: (id: string, patch: MeasurementPatch) =>
     api.patch<Measurement>(`/measurements/${id}`, patch),
-  removeMeasurement: (id: string) => api.del<null>(`/measurements/${id}`),
+  removeMeasurement: (id: string) => api.del<void>(`/measurements/${id}`),
 
   listRaBills: (projectId: string) =>
     api.get<RaBill[]>(`/projects/${projectId}/ra-bills`),

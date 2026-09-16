@@ -16,6 +16,13 @@ export const AUDIT_TARGET_OPTIONS: { value: AuditTargetType; label: string }[] =
   { value: "material", label: "Material" },
   { value: "supplier", label: "Supplier" },
   { value: "contractor", label: "Contractor" },
+  { value: "inspection", label: "Inspection" },
+  { value: "dpr", label: "DPR" },
+  { value: "milestone", label: "Milestone" },
+  { value: "labor", label: "Labor" },
+  { value: "machinery", label: "Machinery" },
+  { value: "indent", label: "Indent" },
+  { value: "grn", label: "Goods receipt" },
 ];
 
 export const AUDIT_TARGET_BADGE: Record<AuditTargetType, BadgeVariant> = {
@@ -33,4 +40,11 @@ export const AUDIT_TARGET_BADGE: Record<AuditTargetType, BadgeVariant> = {
   material: "info",
   supplier: "neutral",
   contractor: "neutral",
+  inspection: "info",
+  dpr: "info",
+  milestone: "info",
+  labor: "warning",
+  machinery: "warning",
+  indent: "info",
+  grn: "success",
 };

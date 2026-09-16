@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import {
@@ -32,6 +32,9 @@ import type { BoqItem, BoqItemPayload } from "@/features/boq";
 import { useWorkPackages, WorkPackageStatusBadge } from "@/features/work-packages";
 import type { WorkPackage } from "@/features/work-packages";
 import { formatCurrency } from "@/lib/format";
+import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
+import { PageHeader } from "@/components/shared/PageHeader";
+import { useCrud } from "@/hooks/use-crud";
 
 export default function BoqPage() {
   const params = useParams();
@@ -48,10 +51,7 @@ export default function BoqPage() {
   const updateItem = useUpdateBoqItem();
   const deleteItem = useDeleteBoqItem();
 
-  const [formOpen, setFormOpen] = useState(false);
-  const [editing, setEditing] = useState<BoqItem | null>(null);
-  const [deleting, setDeleting] = useState<BoqItem | null>(null);
-  const [busyDelete, setBusyDelete] = useState(false);
+  const crud = useCrud<BoqItem>({ resource: "boq" });
 
   const groups = useMemo(() => {
     const items = boqQuery.data?.items ?? [];
@@ -118,8 +118,8 @@ export default function BoqPage() {
   const workPackages = workPackagesQuery.data;
 
   async function handleSave(payload: BoqItemPayload) {
-    if (editing) {
-      await updateItem.mutateAsync({ id: editing.id, patch: payload });
+    if (crud.editing) {
+      await updateItem.mutateAsync({ id: crud.editing.id, patch: payload });
       toast({
         title: "Item updated",
         description: payload.material,
@@ -133,51 +133,41 @@ export default function BoqPage() {
         variant: "success",
       });
     }
-    setFormOpen(false);
-    setEditing(null);
+    crud.setFormOpen(false);
+    crud.setEditing(null);
   }
 
-  async function handleDelete() {
-    if (!deleting) return;
-    setBusyDelete(true);
-    try {
-      await deleteItem.mutateAsync(deleting.id);
-      toast({
-        title: "Item removed",
-        description: `${deleting.material} deleted from the BOQ.`,
-        variant: "success",
-      });
-      setDeleting(null);
-    } finally {
-      setBusyDelete(false);
-    }
+  function handleDelete() {
+    void crud.confirmDelete(
+      (item) => deleteItem.mutateAsync(item.id),
+      { successLabel: "Item removed from the BOQ." }
+    );
   }
 
   return (
     <main className="mx-auto w-full max-w-6xl">
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <div className="flex flex-wrap items-center gap-3">
-            <h1 className="text-2xl font-bold text-text">Bill of quantities</h1>
-            <span className="rounded-full border border-border bg-surface px-2.5 py-0.5 text-xs font-medium text-text-muted">
+      <PageHeader
+        title={
+          <>
+            Bill of quantities
+            <span className="ml-2 rounded-full border border-border bg-surface px-2.5 py-0.5 text-xs font-medium text-text-muted">
               {boq.version}
             </span>
-          </div>
-          <p className="mt-1 text-sm text-text-muted">
-            {projectName ? `${projectName} — ` : ""}itemized cost baseline with
-            running totals grouped by work package.
-          </p>
-        </div>
-        {canWrite && (
-          <div className="flex gap-2">
-            {boq.items.length > 0 && (
-              <Button variant="outline" onClick={() => setFormOpen(true)}>
-                Add item
-              </Button>
-            )}
-          </div>
-        )}
-      </div>
+          </>
+        }
+        description={
+          projectName
+            ? `${projectName} — itemized cost baseline with running totals grouped by work package.`
+            : "Itemized cost baseline with running totals grouped by work package."
+        }
+        actions={
+          canWrite && boq.items.length > 0 ? (
+            <Button variant="outline" onClick={() => crud.startCreate()}>
+              Add item
+            </Button>
+          ) : undefined
+        }
+      />
 
       {boq.items.length === 0 ? (
         <div className="mt-6">
@@ -194,7 +184,7 @@ export default function BoqPage() {
             }
             action={
               canWrite && workPackages.length > 0 ? (
-                <Button onClick={() => setFormOpen(true)}>Add first item</Button>
+                <Button onClick={() => crud.startCreate()}>Add first item</Button>
               ) : undefined
             }
           />
@@ -251,10 +241,10 @@ export default function BoqPage() {
                     items={items}
                     canWrite={canWrite}
                     onEdit={(item) => {
-                      setEditing(item);
-                      setFormOpen(true);
+                      crud.setEditing(item);
+                      crud.setFormOpen(true);
                     }}
-                    onDelete={setDeleting}
+                    onDelete={(item) => crud.requestDelete(item, item.id)}
                   />
                 ))}
                 <TableRow className="bg-surface font-semibold">
@@ -285,50 +275,45 @@ export default function BoqPage() {
       </p>
 
       <Modal
-        open={formOpen}
+        open={crud.formOpen}
         onClose={() => {
-          setFormOpen(false);
-          setEditing(null);
+          crud.setFormOpen(false);
+          crud.setEditing(null);
         }}
-        title={editing ? "Edit BOQ item" : "Add BOQ item"}
+        title={crud.editing ? "Edit BOQ item" : "Add BOQ item"}
         subtitle="Quantity and rate must be greater than zero; amount is derived."
         size="lg"
       >
         <BoqItemForm
-          key={editing?.id ?? "new"}
+          key={crud.editing?.id ?? "new"}
           workPackages={workPackages}
-          initial={editing ?? undefined}
-          submitLabel={editing ? "Save changes" : "Add item"}
+          initial={crud.editing ?? undefined}
+          submitLabel={crud.editing ? "Save changes" : "Add item"}
           onCancel={() => {
-            setFormOpen(false);
-            setEditing(null);
+            crud.setFormOpen(false);
+            crud.setEditing(null);
           }}
           onSubmit={handleSave}
         />
       </Modal>
 
-      <Modal
-        open={deleting !== null}
-        onClose={() => setDeleting(null)}
+      <ConfirmDialog
+        open={crud.deleteTarget !== null}
+        onClose={() => crud.setDeleteTarget(null)}
+        onConfirm={handleDelete}
         title="Delete BOQ item"
-        subtitle="This removes the item from the cost baseline."
-        size="sm"
-      >
-        <p className="text-sm text-text-muted">
-          Remove{" "}
-          <span className="font-semibold text-text">{deleting?.material}</span>{" "}
-          ({deleting ? formatCurrency(deleting.amount) : ""}) from this project&apos;s
-          BOQ? This cannot be undone.
-        </p>
-        <div className="mt-5 flex justify-end gap-2">
-          <Button variant="secondary" onClick={() => setDeleting(null)}>
-            Cancel
-          </Button>
-          <Button variant="danger" loading={busyDelete} onClick={handleDelete}>
-            Delete item
-          </Button>
-        </div>
-      </Modal>
+        description={
+          crud.deleteTarget ? (
+            <>
+              Remove{" "}
+              <span className="font-semibold text-text">{crud.deleteTarget.material}</span>{" "}
+              ({formatCurrency(crud.deleteTarget.amount)}) from this project&apos;s
+              BOQ? This cannot be undone.
+            </>
+          ) : undefined
+        }
+        busy={crud.busy}
+      />
     </main>
   );
 }

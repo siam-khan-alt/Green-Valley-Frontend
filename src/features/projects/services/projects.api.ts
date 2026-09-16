@@ -14,5 +14,5 @@ export const projectsApi = {
     api.post<Project>("/projects", payload),
   update: (id: string, payload: Partial<ProjectPayload>) =>
     api.patch<Project>(`/projects/${id}`, payload),
-  remove: (id: string) => api.del<null>(`/projects/${id}`),
+  remove: (id: string) => api.del<void>(`/projects/${id}`),
 };

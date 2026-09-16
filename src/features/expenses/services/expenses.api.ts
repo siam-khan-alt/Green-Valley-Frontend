@@ -15,7 +15,7 @@ export const expensesApi = {
     api.post<Expense>(`/projects/${projectId}/expenses`, payload),
   updateExpense: (id: string, patch: ExpensePatch) =>
     api.patch<Expense>(`/expenses/${id}`, patch),
-  deleteExpense: (id: string) => api.del<null>(`/expenses/${id}`),
+  deleteExpense: (id: string) => api.del<void>(`/expenses/${id}`),
 
   listPayments: (projectId: string) =>
     api.get<Payment[]>(`/projects/${projectId}/payments`),
@@ -23,5 +23,5 @@ export const expensesApi = {
     api.post<Payment>(`/projects/${projectId}/payments`, payload),
   updatePayment: (id: string, patch: PaymentPatch) =>
     api.patch<Payment>(`/payments/${id}`, patch),
-  deletePayment: (id: string) => api.del<null>(`/payments/${id}`),
+  deletePayment: (id: string) => api.del<void>(`/payments/${id}`),
 };
