@@ -37,6 +37,14 @@ export default async function PublicProjectsPage({
   return (
     <div className="py-8">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="mb-8 rounded-2xl bg-primary px-8 py-10 text-white">
+          <h1 className="text-3xl font-extrabold sm:text-4xl">Our Portfolio</h1>
+          <p className="mt-3 max-w-2xl text-primary-foreground/90">
+            Browse our latest residential, commercial, infrastructure, and mixed-use projects across
+            Bangladesh — each delivered with transparency, quality, and on-time commitment.
+          </p>
+        </div>
+
         <div className="mb-8 flex flex-wrap gap-2">
           <Link
             href="/projects"

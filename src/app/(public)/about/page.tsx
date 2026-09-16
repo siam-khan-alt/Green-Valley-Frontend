@@ -7,11 +7,21 @@ export default function PublicAboutPage() {
   return (
     <div className="py-8">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="mb-12">
-          <h1 className="text-3xl font-extrabold text-text sm:text-4xl">About Green Valley Developers</h1>
-          <p className="mt-3 max-w-2xl text-text-muted">
-            Since 2008, we have transformed skylines and communities across Bangladesh — one project at a time.
-          </p>
+        <div className="relative aspect-[16/9] overflow-hidden rounded-2xl">
+<Image
+          src="https://picsum.photos/seed/gv-banner-about/1400/700"
+          alt="Green Valley Developers about banner"
+          fill
+          sizes="100vw"
+          className="object-cover"
+        />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+          <div className="absolute bottom-0 left-0 right-0 p-8 text-white">
+            <h1 className="text-3xl font-extrabold sm:text-4xl">About Green Valley Developers</h1>
+            <p className="mt-3 max-w-xl text-white/80">
+              Since 2008, we have transformed skylines and communities across Bangladesh — one project at a time.
+            </p>
+          </div>
         </div>
 
         <section className="my-16 grid grid-cols-1 gap-12 lg:grid-cols-2">
